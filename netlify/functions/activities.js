@@ -1,43 +1,39 @@
 /**
- * Netlify Function: Authentication
- * Handles trip creation, PIN validation, and user authentication
+ * Netlify Function: Activities Management
+ * Handles CRUD operations for trip activities
  */
 
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const { authMiddleware } = require('./utils/auth-middleware');
 const { getFirestore } = require('./utils/firebase-admin');
 const { validateRequest, generateResponse } = require('./utils/validation');
 
-exports.handler = async (event, context) => {
-    // Handle CORS
+const handler = async (event, context) => {
     if (event.httpMethod === 'OPTIONS') {
         return generateResponse(200, null, {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS'
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
         });
     }
 
-    if (event.httpMethod !== 'POST') {
-        return generateResponse(405, { error: 'Method not allowed' });
-    }
-
     try {
-        const body = JSON.parse(event.body);
-        const { action } = body;
+        const db = getFirestore();
+        const { tripId, memberId, role } = event.user;
 
-        switch (action) {
-            case 'create_trip':
-                return await createTrip(body);
-            case 'join_trip':
-                return await joinTrip(body);
-            case 'validate_token':
-                return await validateToken(event.headers);
+        switch (event.httpMethod) {
+            case 'GET':
+                return await getActivities(db, event, tripId);
+            case 'POST':
+                return await createActivity(db, event, tripId, memberId);
+            case 'PUT':
+                return await updateActivity(db, event, tripId, memberId, role);
+            case 'DELETE':
+                return await deleteActivity(db, event, tripId, memberId, role);
             default:
-                return generateResponse(400, { error: 'Invalid action' });
+                return generateResponse(405, { error: 'Method not allowed' });
         }
     } catch (error) {
-        console.error('Auth function error:', error);
+        console.error('Activities function error:', error);
         return generateResponse(500, { 
             error: 'Internal server error',
             message: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -46,344 +42,505 @@ exports.handler = async (event, context) => {
 };
 
 /**
- * Create a new trip
+ * Get activities for a trip
  */
-async function createTrip(data) {
-    const { name, startDate, endDate, timezone, displayName, isChild } = data;
-
-    // Validate required fields
-    if (!name || !startDate || !endDate || !timezone || !displayName) {
-        return generateResponse(400, { error: 'Missing required fields' });
-    }
-
-    // Validate date range
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    
-    if (start >= end) {
-        return generateResponse(400, { error: 'End date must be after start date' });
-    }
-
-    // Validate trip duration (max 1 year)
-    const maxDuration = 365 * 24 * 60 * 60 * 1000; // 1 year in milliseconds
-    if (end - start > maxDuration) {
-        return generateResponse(400, { error: 'Trip duration cannot exceed 1 year' });
-    }
-
+async function getActivities(db, event, tripId) {
     try {
-        const db = getFirestore();
+        const queryParams = event.queryStringParameters || {};
+        const { 
+            startDate, 
+            endDate, 
+            attendeeId, 
+            limit = '100',
+            offset = '0' 
+        } = queryParams;
+
+        let query = db.collection('trips').doc(tripId).collection('activities');
+
+        // Apply filters
+        if (startDate) {
+            query = query.where('date', '>=', startDate);
+        }
+        if (endDate) {
+            query = query.where('date', '<=', endDate);
+        }
+
+        // Order by date and time
+        query = query.orderBy('date').orderBy('startTime');
+
+        // Apply pagination
+        const limitNum = Math.min(parseInt(limit, 10) || 100, 500); // Max 500
+        const offsetNum = parseInt(offset, 10) || 0;
         
-        // Generate IDs and PIN
-        const tripId = generateTripId();
-        const adminId = generateMemberId();
-        const pin = generatePIN();
-        const pinHash = await bcrypt.hash(pin, 10);
+        if (offsetNum > 0) {
+            query = query.offset(offsetNum);
+        }
+        query = query.limit(limitNum);
 
-        // Create trip document
-        const tripData = {
-            id: tripId,
-            name: name.trim(),
-            startDate,
-            endDate,
-            timezone,
-            pinHash,
-            createdAt: new Date().toISOString(),
-            createdBy: adminId,
-            roles: {
-                [adminId]: 'admin'
-            },
-            memberCount: 1,
-            activityCount: 0
-        };
+        const snapshot = await query.get();
+        let activities = [];
 
-        // Create admin member document
-        const memberData = {
-            id: adminId,
-            displayName: displayName.trim(),
-            role: 'admin',
-            isChild: Boolean(isChild),
-            joinedAt: new Date().toISOString(),
-            isActive: true,
-            isCreator: true
-        };
+        for (const doc of snapshot.docs) {
+            const activityData = doc.data();
+            
+            // Get attendee details
+            const attendees = await getAttendeeDetails(db, tripId, activityData.attendees || []);
+            
+            activities.push({
+                id: doc.id,
+                ...activityData,
+                attendees
+            });
+        }
 
-        // Write to Firestore
-        const batch = db.batch();
-        
-        const tripRef = db.collection('trips').doc(tripId);
-        const memberRef = db.collection('trips').doc(tripId).collection('members').doc(adminId);
-        
-        batch.set(tripRef, tripData);
-        batch.set(memberRef, memberData);
-        
-        await batch.commit();
+        // Filter by attendee if specified
+        if (attendeeId) {
+            activities = activities.filter(activity => 
+                activity.attendees.some(attendee => attendee.id === attendeeId)
+            );
+        }
 
-        // Generate JWT token
-        const token = jwt.sign(
-            { 
-                tripId, 
-                memberId: adminId, 
-                role: 'admin',
-                displayName: displayName.trim()
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: '30d' }
-        );
-
-        // Return success response
-        return generateResponse(200, {
-            success: true,
-            token,
-            trip: {
-                id: tripId,
-                name: tripData.name,
-                startDate,
-                endDate,
-                timezone,
-                pin, // Only return PIN on creation
-                inviteLink: `${process.env.SITE_URL}?trip=${tripId}`
-            },
-            member: {
-                id: adminId,
-                displayName: memberData.displayName,
-                role: 'admin',
-                isCreator: true
-            }
+        return generateResponse(200, { 
+            activities,
+            total: activities.length,
+            hasMore: activities.length === limitNum
         });
 
     } catch (error) {
-        console.error('Create trip error:', error);
-        return generateResponse(500, { error: 'Failed to create trip' });
+        console.error('Get activities error:', error);
+        return generateResponse(500, { error: 'Failed to load activities' });
     }
 }
 
 /**
- * Join an existing trip with PIN
+ * Create a new activity
  */
-async function joinTrip(data) {
-    const { pin, tripId, displayName, isChild } = data;
-
-    // Validate required fields
-    if (!pin || !displayName) {
-        return generateResponse(400, { error: 'PIN and display name are required' });
-    }
-
-    if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
-        return generateResponse(400, { error: 'PIN must be 6 digits' });
-    }
-
+async function createActivity(db, event, tripId, memberId) {
     try {
-        const db = getFirestore();
-        let targetTripId = tripId;
+        const activityData = JSON.parse(event.body);
+        
+        // Validate required fields
+        const { title, date } = activityData;
+        if (!title?.trim() || !date) {
+            return generateResponse(400, { error: 'Title and date are required' });
+        }
 
-        // If no tripId provided, we need to find the trip by PIN
-        // This is a simplified approach - in production you might want to optimize this
-        if (!targetTripId) {
-            const tripsSnapshot = await db.collection('trips').get();
-            let foundTrip = null;
+        // Validate date format
+        if (!isValidDate(date)) {
+            return generateResponse(400, { error: 'Invalid date format' });
+        }
 
-            for (const doc of tripsSnapshot.docs) {
-                const tripData = doc.data();
-                const isValidPin = await bcrypt.compare(pin, tripData.pinHash);
-                if (isValidPin) {
-                    foundTrip = { id: doc.id, ...tripData };
-                    break;
+        // Validate time fields if provided
+        if (activityData.startTime && !isValidTime(activityData.startTime)) {
+            return generateResponse(400, { error: 'Invalid start time format' });
+        }
+        if (activityData.endTime && !isValidTime(activityData.endTime)) {
+            return generateResponse(400, { error: 'Invalid end time format' });
+        }
+
+        // Validate time range
+        if (activityData.startTime && activityData.endTime && 
+            activityData.startTime >= activityData.endTime) {
+            return generateResponse(400, { error: 'End time must be after start time' });
+        }
+
+        // Validate URLs if provided
+        if (activityData.url && !isValidURL(activityData.url)) {
+            return generateResponse(400, { error: 'Invalid website URL' });
+        }
+        if (activityData.imageUrl && !isValidURL(activityData.imageUrl)) {
+            return generateResponse(400, { error: 'Invalid image URL' });
+        }
+
+        // Validate attendees exist
+        const attendees = activityData.attendees || [];
+        if (attendees.length > 0) {
+            const validAttendees = await validateAttendees(db, tripId, attendees);
+            if (validAttendees.length !== attendees.length) {
+                return generateResponse(400, { error: 'Invalid attendee IDs' });
+            }
+        }
+
+        // Check trip date range
+        const isInTripRange = await validateActivityDateInTripRange(db, tripId, date);
+        if (!isInTripRange) {
+            console.warn(`Activity date ${date} is outside trip range, but allowing it`);
+        }
+
+        const activity = {
+            title: title.trim(),
+            caption: activityData.caption?.trim() || '',
+            date,
+            startTime: activityData.startTime || null,
+            endTime: activityData.endTime || null,
+            address: activityData.address?.trim() || '',
+            url: activityData.url?.trim() || '',
+            price: activityData.price?.trim() || '',
+            openingHours: activityData.openingHours?.trim() || '',
+            imageUrl: activityData.imageUrl?.trim() || '',
+            attendees: attendees,
+            createdBy: memberId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            updatedBy: memberId
+        };
+
+        // Create activity
+        const docRef = await db.collection('trips').doc(tripId).collection('activities').add(activity);
+        
+        // Update trip activity count
+        await updateTripActivityCount(db, tripId, 1);
+
+        // Get attendee details for response
+        const attendeeDetails = await getAttendeeDetails(db, tripId, attendees);
+
+        // Create notification
+        await createActivityNotification(db, tripId, {
+            type: 'activity_created',
+            activityId: docRef.id,
+            message: `New activity: ${activity.title}`,
+            createdBy: memberId,
+            activityData: activity
+        });
+
+        const responseActivity = {
+            id: docRef.id,
+            ...activity,
+            attendees: attendeeDetails
+        };
+
+        return generateResponse(201, responseActivity);
+
+    } catch (error) {
+        console.error('Create activity error:', error);
+        return generateResponse(500, { error: 'Failed to create activity' });
+    }
+}
+
+/**
+ * Update an activity
+ */
+async function updateActivity(db, event, tripId, memberId, role) {
+    try {
+        const activityId = extractActivityIdFromPath(event.path);
+        if (!activityId) {
+            return generateResponse(400, { error: 'Activity ID is required' });
+        }
+
+        // Get existing activity
+        const activityDoc = await db.collection('trips').doc(tripId).collection('activities').doc(activityId).get();
+        if (!activityDoc.exists) {
+            return generateResponse(404, { error: 'Activity not found' });
+        }
+
+        const existingActivity = activityDoc.data();
+
+        // Check permissions
+        if (role !== 'admin' && existingActivity.createdBy !== memberId) {
+            return generateResponse(403, { error: 'Permission denied. You can only edit activities you created.' });
+        }
+
+        const updateData = JSON.parse(event.body);
+        
+        // Validate fields if they're being updated
+        if (updateData.title !== undefined) {
+            if (!updateData.title?.trim()) {
+                return generateResponse(400, { error: 'Title cannot be empty' });
+            }
+        }
+
+        if (updateData.date !== undefined) {
+            if (!isValidDate(updateData.date)) {
+                return generateResponse(400, { error: 'Invalid date format' });
+            }
+        }
+
+        if (updateData.startTime !== undefined && updateData.startTime && !isValidTime(updateData.startTime)) {
+            return generateResponse(400, { error: 'Invalid start time format' });
+        }
+
+        if (updateData.endTime !== undefined && updateData.endTime && !isValidTime(updateData.endTime)) {
+            return generateResponse(400, { error: 'Invalid end time format' });
+        }
+
+        // Validate time range
+        const startTime = updateData.startTime !== undefined ? updateData.startTime : existingActivity.startTime;
+        const endTime = updateData.endTime !== undefined ? updateData.endTime : existingActivity.endTime;
+        
+        if (startTime && endTime && startTime >= endTime) {
+            return generateResponse(400, { error: 'End time must be after start time' });
+        }
+
+        // Validate URLs if provided
+        if (updateData.url !== undefined && updateData.url && !isValidURL(updateData.url)) {
+            return generateResponse(400, { error: 'Invalid website URL' });
+        }
+        if (updateData.imageUrl !== undefined && updateData.imageUrl && !isValidURL(updateData.imageUrl)) {
+            return generateResponse(400, { error: 'Invalid image URL' });
+        }
+
+        // Validate attendees if being updated
+        if (updateData.attendees !== undefined) {
+            const attendees = updateData.attendees || [];
+            if (attendees.length > 0) {
+                const validAttendees = await validateAttendees(db, tripId, attendees);
+                if (validAttendees.length !== attendees.length) {
+                    return generateResponse(400, { error: 'Invalid attendee IDs' });
                 }
             }
-
-            if (!foundTrip) {
-                return generateResponse(401, { error: 'Invalid PIN' });
-            }
-
-            targetTripId = foundTrip.id;
-        } else {
-            // Validate PIN for specific trip
-            const tripDoc = await db.collection('trips').doc(targetTripId).get();
-            
-            if (!tripDoc.exists) {
-                return generateResponse(404, { error: 'Trip not found' });
-            }
-
-            const tripData = tripDoc.data();
-            const isValidPin = await bcrypt.compare(pin, tripData.pinHash);
-
-            if (!isValidPin) {
-                return generateResponse(401, { error: 'Invalid PIN' });
-            }
         }
 
-        // Get trip details
-        const tripDoc = await db.collection('trips').doc(targetTripId).get();
-        const tripData = tripDoc.data();
-
-        // Check if user already exists (by display name - simplified approach)
-        const existingMembersSnapshot = await db
-            .collection('trips')
-            .doc(targetTripId)
-            .collection('members')
-            .where('displayName', '==', displayName.trim())
-            .where('isActive', '==', true)
-            .get();
-
-        if (!existingMembersSnapshot.empty) {
-            return generateResponse(400, { error: 'A member with this name already exists in the trip' });
-        }
-
-        // Create new member
-        const memberId = generateMemberId();
-        const memberData = {
-            id: memberId,
-            displayName: displayName.trim(),
-            role: 'member',
-            isChild: Boolean(isChild),
-            joinedAt: new Date().toISOString(),
-            isActive: true,
-            isCreator: false
+        // Build update object
+        const updates = {
+            updatedAt: new Date().toISOString(),
+            updatedBy: memberId
         };
 
-        // Add member to trip
-        await db.collection('trips').doc(targetTripId).collection('members').doc(memberId).set(memberData);
+        // Only update provided fields
+        const allowedFields = [
+            'title', 'caption', 'date', 'startTime', 'endTime', 
+            'address', 'url', 'price', 'openingHours', 'imageUrl', 'attendees'
+        ];
 
-        // Update trip member count
-        await db.collection('trips').doc(targetTripId).update({
-            memberCount: (tripData.memberCount || 0) + 1
+        allowedFields.forEach(field => {
+            if (updateData[field] !== undefined) {
+                if (typeof updateData[field] === 'string') {
+                    updates[field] = updateData[field].trim();
+                } else {
+                    updates[field] = updateData[field];
+                }
+            }
         });
 
-        // Create notification for other members
-        await createMemberJoinedNotification(db, targetTripId, memberData);
+        // Update activity
+        await db.collection('trips').doc(tripId).collection('activities').doc(activityId).update(updates);
 
-        // Generate JWT token
-        const token = jwt.sign(
-            { 
-                tripId: targetTripId, 
-                memberId, 
-                role: 'member',
-                displayName: displayName.trim()
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: '30d' }
-        );
+        // Get updated activity with attendee details
+        const updatedDoc = await db.collection('trips').doc(tripId).collection('activities').doc(activityId).get();
+        const updatedActivity = updatedDoc.data();
+        const attendeeDetails = await getAttendeeDetails(db, tripId, updatedActivity.attendees || []);
 
-        return generateResponse(200, {
+        // Create notification
+        await createActivityNotification(db, tripId, {
+            type: 'activity_updated',
+            activityId,
+            message: `Activity updated: ${updatedActivity.title}`,
+            createdBy: memberId,
+            activityData: updatedActivity
+        });
+
+        const responseActivity = {
+            id: activityId,
+            ...updatedActivity,
+            attendees: attendeeDetails
+        };
+
+        return generateResponse(200, responseActivity);
+
+    } catch (error) {
+        console.error('Update activity error:', error);
+        return generateResponse(500, { error: 'Failed to update activity' });
+    }
+}
+
+/**
+ * Delete an activity
+ */
+async function deleteActivity(db, event, tripId, memberId, role) {
+    try {
+        const activityId = extractActivityIdFromPath(event.path);
+        if (!activityId) {
+            return generateResponse(400, { error: 'Activity ID is required' });
+        }
+
+        // Get existing activity
+        const activityDoc = await db.collection('trips').doc(tripId).collection('activities').doc(activityId).get();
+        if (!activityDoc.exists) {
+            return generateResponse(404, { error: 'Activity not found' });
+        }
+
+        const activity = activityDoc.data();
+
+        // Check permissions
+        if (role !== 'admin' && activity.createdBy !== memberId) {
+            return generateResponse(403, { error: 'Permission denied. You can only delete activities you created.' });
+        }
+
+        // Delete activity
+        await db.collection('trips').doc(tripId).collection('activities').doc(activityId).delete();
+        
+        // Update trip activity count
+        await updateTripActivityCount(db, tripId, -1);
+
+        // Create notification
+        await createActivityNotification(db, tripId, {
+            type: 'activity_deleted',
+            activityId,
+            message: `Activity deleted: ${activity.title}`,
+            createdBy: memberId,
+            activityData: activity
+        });
+
+        return generateResponse(200, { 
             success: true,
-            token,
-            member: memberData,
-            trip: {
-                id: targetTripId,
-                name: tripData.name,
-                startDate: tripData.startDate,
-                endDate: tripData.endDate,
-                timezone: tripData.timezone
-            }
+            message: 'Activity deleted successfully' 
         });
 
     } catch (error) {
-        console.error('Join trip error:', error);
-        return generateResponse(500, { error: 'Failed to join trip' });
+        console.error('Delete activity error:', error);
+        return generateResponse(500, { error: 'Failed to delete activity' });
     }
 }
 
 /**
- * Validate JWT token and return user/trip info
+ * Get attendee details from member IDs
  */
-async function validateToken(headers) {
-    const token = headers.authorization?.replace('Bearer ', '');
-    
-    if (!token) {
-        return generateResponse(401, { error: 'No token provided' });
-    }
+async function getAttendeeDetails(db, tripId, attendeeIds) {
+    if (!attendeeIds || attendeeIds.length === 0) return [];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const { tripId, memberId } = decoded;
-
-        const db = getFirestore();
-
-        // Get trip and member data
-        const [tripDoc, memberDoc] = await Promise.all([
-            db.collection('trips').doc(tripId).get(),
-            db.collection('trips').doc(tripId).collection('members').doc(memberId).get()
-        ]);
-
-        if (!tripDoc.exists || !memberDoc.exists) {
-            return generateResponse(401, { error: 'Invalid token - trip or member not found' });
+        const attendeeDetails = [];
+        
+        for (const attendeeId of attendeeIds) {
+            const memberDoc = await db.collection('trips').doc(tripId).collection('members').doc(attendeeId).get();
+            if (memberDoc.exists) {
+                const memberData = memberDoc.data();
+                attendeeDetails.push({
+                    id: attendeeId,
+                    displayName: memberData.displayName,
+                    role: memberData.role,
+                    isChild: memberData.isChild || false
+                });
+            }
         }
+
+        return attendeeDetails;
+    } catch (error) {
+        console.error('Error getting attendee details:', error);
+        return [];
+    }
+}
+
+/**
+ * Validate that attendee IDs exist as trip members
+ */
+async function validateAttendees(db, tripId, attendeeIds) {
+    if (!attendeeIds || attendeeIds.length === 0) return [];
+
+    try {
+        const validAttendees = [];
+        
+        for (const attendeeId of attendeeIds) {
+            const memberDoc = await db.collection('trips').doc(tripId).collection('members').doc(attendeeId).get();
+            if (memberDoc.exists && memberDoc.data().isActive) {
+                validAttendees.push(attendeeId);
+            }
+        }
+
+        return validAttendees;
+    } catch (error) {
+        console.error('Error validating attendees:', error);
+        return [];
+    }
+}
+
+/**
+ * Check if activity date is within trip date range
+ */
+async function validateActivityDateInTripRange(db, tripId, activityDate) {
+    try {
+        const tripDoc = await db.collection('trips').doc(tripId).get();
+        if (!tripDoc.exists) return false;
 
         const tripData = tripDoc.data();
-        const memberData = memberDoc.data();
+        const activityDateObj = new Date(activityDate);
+        const startDate = new Date(tripData.startDate);
+        const endDate = new Date(tripData.endDate);
 
-        // Check if member is still active
-        if (!memberData.isActive) {
-            return generateResponse(401, { error: 'Member account is deactivated' });
-        }
-
-        return generateResponse(200, {
-            valid: true,
-            user: memberData,
-            trip: {
-                id: tripId,
-                name: tripData.name,
-                startDate: tripData.startDate,
-                endDate: tripData.endDate,
-                timezone: tripData.timezone,
-                memberCount: tripData.memberCount,
-                activityCount: tripData.activityCount
-            }
-        });
-
+        return activityDateObj >= startDate && activityDateObj <= endDate;
     } catch (error) {
-        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-            return generateResponse(401, { error: 'Invalid or expired token' });
-        }
-
-        console.error('Token validation error:', error);
-        return generateResponse(500, { error: 'Token validation failed' });
+        console.error('Error validating activity date range:', error);
+        return true; // Allow if we can't validate
     }
 }
 
 /**
- * Create notification when member joins
+ * Update trip activity count
  */
-async function createMemberJoinedNotification(db, tripId, memberData) {
+async function updateTripActivityCount(db, tripId, increment) {
     try {
-        const notificationData = {
-            type: 'member_joined',
-            message: `${memberData.displayName} joined the trip`,
+        const tripRef = db.collection('trips').doc(tripId);
+        const tripDoc = await tripRef.get();
+        
+        if (tripDoc.exists) {
+            const currentCount = tripDoc.data().activityCount || 0;
+            await tripRef.update({
+                activityCount: Math.max(0, currentCount + increment)
+            });
+        }
+    } catch (error) {
+        console.error('Error updating activity count:', error);
+        // Don't throw - this is not critical
+    }
+}
+
+/**
+ * Create activity-related notification
+ */
+async function createActivityNotification(db, tripId, notificationData) {
+    try {
+        const notification = {
+            ...notificationData,
             tripId,
-            createdBy: memberData.id,
             createdAt: new Date().toISOString(),
-            readBy: [memberData.id] // Member who joined has already "seen" this
+            readBy: [notificationData.createdBy] // Creator has implicitly "read" their own action
         };
 
-        await db.collection('trips').doc(tripId).collection('notifications').add(notificationData);
+        await db.collection('trips').doc(tripId).collection('notifications').add(notification);
     } catch (error) {
-        console.error('Failed to create member joined notification:', error);
-        // Don't throw - notification failure shouldn't block member joining
+        console.error('Error creating activity notification:', error);
+        // Don't throw - notification failure shouldn't block the main operation
     }
 }
 
 /**
- * Generate random trip ID
+ * Extract activity ID from URL path
  */
-function generateTripId() {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < 12; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+function extractActivityIdFromPath(path) {
+    // Path format: /.netlify/functions/activities/{activityId}
+    const matches = path.match(/\/activities\/([^\/]+)$/);
+    return matches ? matches[1] : null;
+}
+
+/**
+ * Validate date string (YYYY-MM-DD)
+ */
+function isValidDate(dateString) {
+    if (typeof dateString !== 'string') return false;
+    
+    const date = new Date(dateString);
+    return !isNaN(date.getTime()) && dateString.match(/^\d{4}-\d{2}-\d{2}$/);
+}
+
+/**
+ * Validate time string (HH:MM)
+ */
+function isValidTime(timeString) {
+    if (typeof timeString !== 'string') return false;
+    return /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeString);
+}
+
+/**
+ * Validate URL format
+ */
+function isValidURL(urlString) {
+    try {
+        new URL(urlString);
+        return true;
+    } catch {
+        return false;
     }
-    return result;
 }
 
-/**
- * Generate random member ID
- */
-function generateMemberId() {
-    return 'member_' + Math.random().toString(36).substring(2, 15);
-}
-
-/**
- * Generate 6-digit PIN
- */
-function generatePIN() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
+// Export with auth middleware
+exports.handler = authMiddleware(handler);
