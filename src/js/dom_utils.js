@@ -1,8 +1,3 @@
-/**
- * TripTogether Calendar - Utility Functions
- * Common utility functions used throughout the application
- */
-
 // =============================================================================
 // DOM Utilities
 // =============================================================================
