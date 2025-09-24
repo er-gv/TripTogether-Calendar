@@ -3,10 +3,10 @@
  * Handles trip details, members, and settings
  */
 
-const bcrypt = require('bcryptjs');
-const { authMiddleware } = require('/netlify/functions/utils/auth-middleware');
-const { getFirestore } = require('/netlify/functions/utils/firebase-admin');
-const { generateResponse } = require('/netlify/functions/utils/validation');
+import bcrypt from 'bcryptjs';
+const { authMiddleware } = import('../netlify/functions/utils/auth-middleware');
+const { getFirestore } = import('../netlify/functions/utils/firebase-admin');
+const { generateResponse } = import('../netlify/functions/utils/validation');
 
 const handler = async (event, context) => {
     if (event.httpMethod === 'OPTIONS') {
@@ -504,4 +504,4 @@ function generatePIN() {
 }
 
 // Export with auth middleware
-exports.handler = authMiddleware(handler);
+export const handlerRef = authMiddleware(handler);
