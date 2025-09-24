@@ -4,9 +4,9 @@
  */
 
 const bcrypt = require('bcryptjs');
-const { authMiddleware } = require('./utils/auth-middleware');
-const { getFirestore } = require('./utils/firebase-admin');
-const { generateResponse } = require('./utils/validation');
+const { authMiddleware } = require('/netlify/functions/utils/auth-middleware');
+const { getFirestore } = require('/netlify/functions/utils/firebase-admin');
+const { generateResponse } = require('/netlify/functions/utils/validation');
 
 const handler = async (event, context) => {
     if (event.httpMethod === 'OPTIONS') {
