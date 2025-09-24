@@ -5,7 +5,8 @@
 
 class ApiClient {
     constructor() {
-        this.baseUrl = '/.netlify/functions'; // Netlify functions endpoint
+        this.baseUrl = '/src/js/netlify/functions'; // Netlify functions endpoint
+        console.log('API Client initialized with base URL:', this.baseUrl);
         this.token = localStorage.getItem('auth_token');
     }
 
