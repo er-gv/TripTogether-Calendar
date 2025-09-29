@@ -9,7 +9,7 @@ class Calendar {
         this.currentDate = new Date();
         this.currentView = 'month';
         this.activities = [];
-        this.timezone = trip.timezone || 'America/Vancouver';
+        this.timezone = trip.timezone || 'America/New_York';
         
         this.bindEvents();
     }

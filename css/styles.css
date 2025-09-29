@@ -114,6 +114,15 @@ html, body {
 
 .page {
     min-height: 100vh;
+    background-color: #5f6368;
+    
+}
+
+#landing-page {
+    background-image: url("../public/2012-07-06 05.39.35.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .icon {

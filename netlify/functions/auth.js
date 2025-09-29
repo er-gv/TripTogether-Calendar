@@ -3,7 +3,7 @@
  * Handles trip creation, PIN validation, and user authentication
  */
 
-import bcrypt from 'bcryptjs';
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getFirestore } = require('./utils/firebase-admin');
 const { validateRequest, generateResponse } = require('./utils/validation');

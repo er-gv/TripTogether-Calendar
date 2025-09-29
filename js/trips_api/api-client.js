@@ -5,8 +5,7 @@
 
 class ApiClient {
     constructor() {
-        this.baseUrl = '/.netlify/functions'; // Netlify functions endpoint
-        console.log('API Client initialized with base URL:', this.baseUrl);
+        this.baseUrl = '../../netlify/functions'; // Netlify functions endpoint
         this.token = localStorage.getItem('auth_token');
     }
 
@@ -142,9 +141,7 @@ class ApiClient {
      * Get trip details
      */
     async getTrip(tripId) {
-        const response = await fetch(`${this.baseUrl}/trips/${tripId}`);
-        return response.json();
-        //return await this.request(`/trips/${tripId}`);
+        return await this.request(`/trips/${tripId}`);
     }
 
     /**
