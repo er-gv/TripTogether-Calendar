@@ -1,37 +1,197 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, {useState, useEffect } from 'react';
+import { SplashScreen } from './components/auth/SplashScreen';
+import { Header } from './components/layout/Header';
+import { Navigation } from './components/layout/Navigation';
+import { Dashboard } from './components/dashboard/Dashboard';
+import { ActivityBrowser } from './components/activities/ActivityBrowser';
+import { CreateActivity } from './components/activities/CreateActivity';
+import { MembersList } from './components/members/MembersList';
+import { useAuth } from './hooks/useAuth';
+import { useTrip } from './hooks/useTrip';
+import { useActivities } from './hooks/useActivities.ts';
+import { createTrip } from './services/firestore';
+import { Loader } from 'lucide-react';
 
-
+type View = 'dashboard' | 'browse' | 'create';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { user, loading: authLoading, signInWithGoogle } = useAuth();
+  const [currentTripId, setCurrentTripId] = useState<string | null>(null);
+  const { currentTrip, members, loading: tripLoading } = useTrip(currentTripId, user?.id || null);
+  const { activities, loading: activitiesLoading, createActivity, deleteActivity, toggleOptIn } = useActivities(currentTripId);
+  
+  const [view, setView] = useState<View>('dashboard');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterMember, setFilterMember] = useState('');
+  const [filterTags, setFilterTags] = useState<string[]>([]);
+
+  // Show loading screen while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-pink-600">
+        <div className="text-center">
+          <Loader className="animate-spin text-white mx-auto mb-4" size={48} />
+          <p className="text-white text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show splash screen if not logged in or no trip selected
+  if (!user || !currentTripId) {
+    const handleLogin = async (tripId: string) => {
+      try {
+        await signInWithGoogle();
+        setCurrentTripId(tripId);
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Failed to login. Please try again.');
+      }
+    };
+
+    const handleCreateTrip = async (tripData: any) => {
+      try {
+        await signInWithGoogle();
+        const tripId = await createTrip({
+          ...tripData,
+          ownerId: user!.id,
+          memberIds: [user!.id],
+        });
+        setCurrentTripId(tripId);
+        return tripId;
+      } catch (error) {
+        console.error('Create trip error:', error);
+        throw error;
+      }
+    };
+
+    return <SplashScreen onLogin={handleLogin} onCreateTrip={handleCreateTrip} />;
+  }
+
+  // Show loading while trip data loads
+  if (tripLoading || !currentTrip) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-pink-600">
+        <div className="text-center">
+          <Loader className="animate-spin text-white mx-auto mb-4" size={48} />
+          <p className="text-white text-lg">Loading trip...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const isOwner = currentTrip.ownerId === user.id;
+
+  const handleCreateActivity = async (activityData: any) => {
+    try {
+      await createActivity({
+        ...activityData,
+        tripId: currentTrip.id,
+        creatorId: user.id,
+        creatorName: user.displayName,
+        optedInUsers: [user.id],
+      });
+      setView('dashboard');
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      alert('Failed to create activity. Please try again.');
+    }
+  };
+
+  const handleToggleOptIn = async (activityId: string, optIn: boolean) => {
+    try {
+      await toggleOptIn(activityId, user.id, optIn);
+    } catch (error) {
+      console.error('Error toggling opt-in:', error);
+      alert('Failed to update activity. Please try again.');
+    }
+  };
+
+  const handleDeleteActivity = async (activityId: string) => {
+    try {
+      await deleteActivity(activityId);
+    } catch (error) {
+      console.error('Error deleting activity:', error);
+      alert('Failed to delete activity. Please try again.');
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentTripId(null);
+    setView('dashboard');
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen" style={{
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    }}>
+      {/* Background Image */}
+      <div className="absolute inset-0 opacity-10" style={{
+        backgroundImage: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}></div>
+
+      {/* Header */}
+      <Header
+        trip={currentTrip}
+        user={user}
+        memberCount={members.length}
+        onLogout={handleLogout}
+      />
+
+      {/* Navigation */}
+      <Navigation currentView={view} onViewChange={setView} />
+
+      {/* Main Content */}
+      <div className="relative">
+        {view === 'dashboard' && (
+          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
+            <div className="lg:col-span-2">
+              <Dashboard
+                activities={activities}
+                currentUser={user}
+                onToggleOptIn={handleToggleOptIn}
+                onDeleteActivity={handleDeleteActivity}
+                isOwner={isOwner}
+              />
+            </div>
+            <div>
+              <MembersList
+                members={members}
+                ownerId={currentTrip.ownerId}
+                currentUserId={user.id}
+              />
+            </div>
+          </div>
+        )}
+
+        {view === 'browse' && (
+          <ActivityBrowser
+            activities={activities}
+            currentUser={user}
+            members={members}
+            onToggleOptIn={handleToggleOptIn}
+            onDeleteActivity={handleDeleteActivity}
+            isOwner={isOwner}
+            filterDate={filterDate}
+            filterMember={filterMember}
+            filterTags={filterTags}
+            onFilterDateChange={setFilterDate}
+            onFilterMemberChange={setFilterMember}
+            onFilterTagsChange={setFilterTags}
+          />
+        )}
+
+        {view === 'create' && (
+          <CreateActivity
+            onCreateActivity={handleCreateActivity}
+            onCancel={() => setView('dashboard')}
+          />
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
