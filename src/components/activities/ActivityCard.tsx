@@ -1,8 +1,13 @@
 import React from 'react';
 import { Calendar, MapPin, Users, ExternalLink, Trash2, Check } from 'lucide-react';
-import type { Activity, User } from '../../types';
-import { formatDateTime } from '../../utils/helpers';
-import RichTextViewer from '../common/RichTextViewer';
+import type { Activity, User, Trip } from '@/types';
+
+import { formatDateTime } from '@/utils/helpers';
+import { getTripLocation } from '@/services/firestore';
+import { ActivityHeader} from '@/components/activities/ActivityHeader'; 
+import { ActivityParticipants } from '@/components/activities/ActivityParticipants'; 
+import { ActivityTags } from '@/components/activities/ActivityTags'; 
+import RichTextViewer from '@/components/common/RichTextViewer';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -29,9 +34,24 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     ? 'border-4 border-purple-600 rounded-xl p-4 transition bg-gray-100'
     : 'border-4 border-gray-200 rounded-xl p-4 hover:border-purple-400 transition bg-white';
 
-  return (
+    const tripLocation = "Canada"
+    const locationName = activity.location || tripLocation;
+    return (
     <div className={containerClass} onClick={() => onSelect?.(activity.id)}>
       <div className="flex gap-4">
+      <ActivityHeader
+        name={activity.name}
+        currentUser={currentUser}
+        location={locationName}
+        dateTime={activity.dateTime}
+        thumbnailUrl={activity.thumbnailUrl}
+        mapsLink={activity.mapsLink}
+        tags={activity.tags}
+      />
+      </div>
+        
+      <div className="flex gap-4">
+        {/* image */}
         <div className="flex-shrink-0">
           <img
             src={activity.thumbnailUrl}
@@ -105,8 +125,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               </span>
             ))}
           </div>
-
-          {activity.mapsLink && (
+            
+          {activity.mapsLink ?(
             <a
               href={activity.mapsLink}
               target="_blank"
@@ -115,9 +135,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               onClick={(e) => e.stopPropagation()}
             >
               <MapPin size={14} />
-              View on Google Maps
+              {activity.location}
               <ExternalLink size={12} />
             </a>
+          ) : (
+            <div className="text-sm text-gray-600">
+              <MapPin size={14} className="inline-block mr-1" />
+              {locationName}
+            </div>
           )}
         </div>
       </div>

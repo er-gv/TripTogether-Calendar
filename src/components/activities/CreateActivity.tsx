@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Plus, Image, MapPin, Calendar, Tag, Loader } from 'lucide-react';
 import { Button } from '../common/Button';
-import { AVAILABLE_TAGS } from '../../types';
-import { formatDateTime, isValidUrl, toDateTimeLocal } from '../../utils/helpers';
-import RichTextEditor from '../common/RichTextEditor';
-import type { Trip } from '../../types';
+import { AVAILABLE_TAGS } from '@/types';
+import { formatDateTime, isValidUrl, toDateTimeLocal } from '@/utils/helpers';
+import RichTextEditor from '@/components/common/RichTextEditor';
+import type { Trip } from '@/types';
 
 interface CreateActivityProps {
   onCreateActivity: (activityData: {
@@ -35,7 +35,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    thumbnailUrl: 'https://p7.hiclipart.com/preview/871/125/261/world-travel-attractions-landmark-vector-material.jpg',
+    thumbnailUrl: '',
     mapsLink: '',
     dateTime: toDateTimeLocal(activeTrip.startDate),
     location: '',

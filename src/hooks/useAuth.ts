@@ -7,9 +7,9 @@ import {
   onAuthStateChanged
 } from 'firebase/auth';
 
-import { auth, googleProvider } from '../services/firebase';
-import type{ User } from '../types';
-import { createOrUpdateUser } from '../services/firestore';
+import { auth, googleProvider } from '@/services/firebase';
+import type{ User } from '@/types';
+import { createOrUpdateUser } from '@/services/firestore';
 
 const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);

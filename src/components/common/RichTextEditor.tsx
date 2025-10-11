@@ -27,13 +27,69 @@ export default function RichTextEditor({ value, onChange, placeholder }: Props) 
         const editor = new Quill(containerRef.current, {
           theme: 'snow',
           modules: {
-            toolbar: [
-              [{ header: [1, 2, 3, false] }],
-              ['bold', 'italic', 'underline'],
-              [{ list: 'ordered' }, { list: 'bullet' }],
-              ['blockquote', 'link'],
-              ['clean']
-            ]
+            toolbar: {
+              container: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['blockquote', 'link', 'video'],
+                ['clean']
+              ],
+              handlers: {
+                // Provide a simple prompt-based handler for video/embed URLs.
+                video: function (this: any) {
+                  const range = editor.getSelection(true);
+                  const raw = prompt('Paste a video or embed URL (YouTube / Vimeo)');
+                  if (!raw) return;
+                  let value = raw.trim();
+                  // Convert common YouTube/Vimeo URLs to embed URLs
+                  try {
+                    const ytMatch = value.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+                    if (ytMatch && ytMatch[1]) {
+                      value = `https://www.youtube.com/embed/${ytMatch[1]}`;
+                    } else {
+                      const urlObj = new URL(value, 'https://example.com');
+                      if (/youtube\.com/i.test(urlObj.hostname) && urlObj.searchParams.get('v')) {
+                        value = `https://www.youtube.com/embed/${urlObj.searchParams.get('v')}`;
+                      }
+                    }
+                    const vimeoMatch = value.match(/(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/);
+                    if (vimeoMatch && vimeoMatch[1]) {
+                      value = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+                    }
+                  } catch (e) {
+                    // ignore and use raw value
+                  }
+
+                  const valueToInsert = value;
+                  if (!valueToInsert) return;
+
+                  try {
+                    // Insert using Quill's video blot (iframe)
+                    editor.insertEmbed(range.index, 'video', valueToInsert, 'user');
+                    // Patch iframe attributes shortly after insert
+                    setTimeout(() => {
+                      try {
+                        const iframes = containerRef.current?.querySelectorAll('iframe') || [];
+                        iframes.forEach((frame) => {
+                          if (!frame.getAttribute('allow')) {
+                            frame.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                          }
+                          frame.setAttribute('allowfullscreen', '');
+                          frame.setAttribute('frameborder', '0');
+                          const src = frame.getAttribute('src') || '';
+                          if (src && src.startsWith('//')) frame.setAttribute('src', `https:${src}`);
+                        });
+                      } catch (e) {
+                        // ignore
+                      }
+                    }, 50);
+                  } catch (e) {
+                    // ignore
+                  }
+                }
+              }
+            }
           }
         });
 

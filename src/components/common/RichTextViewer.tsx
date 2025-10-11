@@ -17,8 +17,8 @@ export default function RichTextViewer({ html, className }: Props) {
       const DOMPurify = (mod.default || mod);
       // Allow link attributes so we can keep target and rel when sanitizing
       const clean = DOMPurify.sanitize(html, {
-        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li'],
-        ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 'iframe'],
+        ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style', 'src', 'allow', 'allowfullscreen', 'frameborder'],
       });
 
       // Ensure anchors open in a new tab and have a visible blue color
@@ -34,6 +34,24 @@ export default function RichTextViewer({ html, className }: Props) {
           if (!/color\s*:\s*/i.test(existingStyle)) {
             a.setAttribute('style', `${existingStyle}color: #2563eb; text-decoration: underline;`);
           }
+        });
+        // Validate iframes: only allow common providers (youtube, vimeo) or https origins
+        const iframes = doc.querySelectorAll('iframe');
+        iframes.forEach((f) => {
+          const src = f.getAttribute('src') || '';
+          const isAllowed = /^(https?:)?\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|youtu\.be|player\.vimeo\.com)\//i.test(src) || /^https:/i.test(src);
+          if (!isAllowed) {
+            // remove unsafe iframe
+            f.remove();
+            return;
+          }
+          if (!f.getAttribute('allow')) {
+            f.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+          }
+          f.setAttribute('allowfullscreen', '');
+          f.setAttribute('frameborder', '0');
+          // ensure https src
+          if (src.startsWith('//')) f.setAttribute('src', `https:${src}`);
         });
         setSanitized(doc.body.innerHTML);
       } catch (e) {

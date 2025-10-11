@@ -1,18 +1,19 @@
 import React from 'react';
-import { Calendar, MapPin, Users, ExternalLink, Trash2, Edit2, Edit } from 'lucide-react';
-import type { Activity, User } from '../../types';
-import { formatDateTime } from '../../utils/helpers';
-import RichTextViewer from '../common/RichTextViewer';
+import { Calendar, MapPin, Users, ExternalLink, Trash2, Space } from 'lucide-react';
+import type { Activity, User } from '@/types';
+import {ActivityHeader } from '@/components/activities/ActivityHeader';
+import {ActivityParticipants   } from '@/components/activities/ActivityParticipants';
+import  RichTextViewer  from '@/components/common/RichTextViewer';
+import { Check } from 'lucide-react';
+import { formatDateTime } from '@/utils/datetime';
+import ActivityTags from '@/components/activities/ActivityTags';
 
 interface MyActivityCardProps {
   activity: Activity;
   currentUser: User;
   onToggleOptIn: (activityId: string, optIn: boolean) => void;
   onDeleteActivity: (activityId: string) => void;
-  onEditActivity: (activityId: string) => void;
   canEdit: boolean;
-  isActive?: boolean;
-  onSelect?: (activityId: string) => void;
 }
 
 export const MyActivityCard: React.FC<MyActivityCardProps> = ({
@@ -20,77 +21,83 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
   currentUser,
   onToggleOptIn,
   onDeleteActivity,
-  onEditActivity,
   canEdit,
-  isActive,
-  onSelect,
 }) => {
   const isOptedIn = activity.optedInUsers.includes(currentUser.id);
-  const containerClass = isActive
-    ? 'border-4 border-purple-600 rounded-xl p-4 transition bg-gray-100'
-    : 'border-4 border-gray-200 rounded-xl p-4 hover:border-purple-400 transition bg-white';
 
+ 
   return (
-    <div className={containerClass} onClick={() => onSelect?.(activity.id)}>
-      <div className="flex gap-4">
-        {/* Thumbnail */}
-        <div className="flex-shrink-0">
-          <img
-            src={activity.thumbnailUrl}
-            alt={activity.name}
-            className="w-32 h-32 object-cover rounded-lg shadow-md"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://p7.hiclipart.com/preview/871/125/261/world-travel-attractions-landmark-vector-material.jpg';
-            }}
-          />
-        </div>
+  <div className="p-5 border-2 border-red-600 rounded-lg shadow-sm hover:shadow-md transition mb-2">
+      
+      
+      
+      <div className="p-4 border border-blue-800 rounded-lg shadow-sm hover:shadow-md transition mb-4">
+      <ActivityHeader
+        name={activity.name}
+        currentUser={currentUser}
+        location={activity.location}
+        dateTime={activity.dateTime}
+        thumbnailUrl={activity.thumbnailUrl}
+        mapsLink={activity.mapsLink}
+        tags={activity.tags}  
+      />
+      <div className=" border-b border-gray-300 mt-3 mb-3" />
+      <RichTextViewer html={activity.description ?? ''} />
+      <div className=" border-b border-gray-300 mt-3 mb-3" />
+     
+      <ActivityParticipants
+        participants={activity.optedInUsers}
+        onToggleOptIn={() => onToggleOptIn(activity.id, !isOptedIn)}
+      />
+      </div>
+      
 
-        {/* Content */}
+</div>
+     
+      
+      
+    /*  <div className="flex gap-4">
+        
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1 min-w-0">
-              <h5 className="text-xl font-bold text-gray-800 mb-1">
-                {activity.name}
-              </h5>
-              <div className="text-md text-black-600 mb-3">
-                <RichTextViewer html={activity.description ?? ''} />
-              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-1">{activity.name}</h3>
+              <p className="text-sm text-gray-500 mb-2">Created by {activity.creatorName}</p>
+              <RichTextViewer html={activity.description ?? ''} />
             </div>
 
-            {/* Actions */}
             <div className="flex gap-2 flex-shrink-0">
+              <button
+                onClick={(e) => { e.stopPropagation(); onToggleOptIn(activity.id, !isOptedIn); }}
+                className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
+                  isOptedIn ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-purple-500 text-white hover:bg-purple-600'
+                }`}
+              >
+                {isOptedIn ? (
+                  <>
+                    <Check size={18} />
+                    Joined
+                  </>
+                ) : (
+                  <>
+                    <Users size={18} />
+                    Join
+                  </>
+                )}
+              </button>
+
               {canEdit && (
                 <button
-                  onClick={() => {
-                    onEditActivity(activity.id);
-                  }}
-                  className="p-2 text-orange-900 hover:bg-red-50 rounded-lg transition"
-                  title="Edit activity"
-                >
-                  <Edit size={18} />
-                </button>
-              )}
-              {canEdit && (
-                <button
-                  onClick={() => {
-                    if (confirm('Are you sure you want to delete this activity?')) {
-                      onDeleteActivity(activity.id);
-                    }
-                  }}
+                  onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
                   className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
                   title="Delete activity"
                 >
                   <Trash2 size={18} />
                 </button>
-                
               )}
-              
-                
-              
             </div>
           </div>
 
-          {/* Info Row */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
             <div className="flex items-center gap-1">
               <Calendar size={16} />
@@ -106,31 +113,32 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
             </div>
           </div>
 
-          {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-3">
-            {activity.tags.map(tag => (
-              <span
-                key={tag}
-                className="px-3 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium"
-              >
+            {activity.tags.map((tag) => (
+              <span key={tag} className="px-3 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">
                 {tag}
               </span>
             ))}
           </div>
 
-          {/* Links */}
           {activity.mapsLink && (
-            
-              <a href={activity.mapsLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-extra-large"
-                          ><MapPin size={14} />
-                           View on Google Maps 
-                            <ExternalLink size={12} /></a>
+            <a
+              href={activity.mapsLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MapPin size={14} />
+              View on Google Maps
+              <ExternalLink size={12} />
+            </a>
           )}
         </div>
       </div>
     </div>
+    */
   );
 };
+
+   

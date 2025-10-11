@@ -94,6 +94,17 @@ export const updateActivity = async (activityId: string, data: Partial<Activity>
   });
 };
 
+export const getTripLocation = async (tripId: string): Promise<string> => {
+  const q = query(
+    collection(db, TRIPS_COLLECTION),
+    where('id', '==', tripId)
+  );
+  
+  const snapshot = await getDocs(q);
+  const trip = snapshot.docs[0].data() as Trip;
+  return trip.destination;
+};
+
 export const deleteActivity = async (activityId: string): Promise<void> => {
   await deleteDoc(doc(db, ACTIVITIES_COLLECTION, activityId));
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { Trip, User } from '../types';
-import { getTrip, addMemberToTrip, getUsersByIds } from '../services/firestore';
+import type { Trip, User } from '@/types';
+import { getTrip, addMemberToTrip, getUsersByIds } from '@/services/firestore';
 
 export const useTrip = (tripId: string | null, userId: string | null) => {
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);

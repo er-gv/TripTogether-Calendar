@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { FilePen, Image, MapPin, Calendar, Tag, Loader, Users } from 'lucide-react';
 import { Button } from '../common/Button';
-import { AVAILABLE_TAGS, type Activity } from '../../types';
-import { formatDateTime, isValidUrl, toDateTimeLocal } from '../../utils/helpers';
-import RichTextEditor from '../common/RichTextEditor';
-import type { Trip } from '../../types';
+import { AVAILABLE_TAGS, type Activity } from '@/types';
+import { formatDateTime, isValidUrl, toDateTimeLocal } from '@/utils/helpers';
+import RichTextEditor from '@/components/common/RichTextEditor';
+import type { Trip } from '@/types';
 
 interface EditActivityProps {
   activity: Activity;

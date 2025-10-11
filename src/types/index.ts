@@ -56,6 +56,9 @@ export const AVAILABLE_TAGS = [
   'museum',
   'concert',
   'hike',
+  'park',
+  'theater',
+  'festival',
   'shopping',
   'food',
   'art',
@@ -71,5 +74,7 @@ export const AVAILABLE_TAGS = [
   'get together',
   'nightlife'
 ] as const;
+
+// Call the function to add your tags
 
 export type ActivityTag = (typeof AVAILABLE_TAGS)[number];

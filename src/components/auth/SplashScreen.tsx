@@ -43,8 +43,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
       <div className="relative z-10 max-w-2xl w-full">
         {/* Logo & Title */}
         <div className="text-center mb-12 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-full shadow-2xl mb-6 transform hover:scale-110 transition duration-300">
-            <Plane size={48} className="text-purple-600" />
+          <div className="inline-flex items-center justify-center w-28 h-28 bg-white rounded-full shadow-2xl mb-6 transform hover:scale-110 transition duration-300">
+            <img src="/compass.jpg" alt="TripTogether Logo"  />
+            
           </div>
           <h1 className="text-6xl font-bold text-white mb-4 drop-shadow-lg">
             TripTogether

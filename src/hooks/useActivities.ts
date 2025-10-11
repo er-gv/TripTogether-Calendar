@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import type { Activity } from '../types/';
+import type { Activity } from '@/types/';
 import { 
   getActivitiesByTrip, 
   createActivity as createActivityFS,
   updateActivity as updateActivityFS,
   deleteActivity as deleteActivityFS,
   toggleActivityOptIn 
-} from '../services/firestore';
+} from '@/services/firestore';
 
 export const useActivities = (tripId: string | null) => {
   const [activities, setActivities] = useState<Activity[]>([]);
