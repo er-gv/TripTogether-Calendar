@@ -24,15 +24,43 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, on
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const timezones = [
     'America/New_York',
     'America/Chicago',
     'America/Denver',
     'America/Los_Angeles',
+    // Common North American zones
+    'America/Toronto',
+    'America/Vancouver',
+    'America/Halifax',
+    'America/St_Johns',
+    'America/Winnipeg',
+    'America/Regina',
+    'America/Edmonton',
+
+    // European zones
     'Europe/London',
     'Europe/Paris',
     'Europe/Berlin',
+    'Europe/Frankfurt',
+    'Europe/Madrid',
+    'Europe/Cologne',
+    'Europe/Amsterdam',
+    'Europe/Zurich',
+    'Europe/Warsaw',
+    'Europe/Prague',
+    'Europe/Vienna',
+    'Europe/Madrid',
+    'Europe/Rome',
+    'Europe/Amsterdam',
+    'Europe/Zurich',
+    'Europe/Warsaw',
+    'Europe/Prague',
+    'Europe/Vienna',
+
+    // Asia / Oceania
     'Asia/Tokyo',
     'Asia/Dubai',
     'Australia/Sydney',
@@ -76,9 +104,13 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, on
     try {
       const tripId = await onCreateTrip(formData);
       alert(`Trip created! Trip ID: ${tripId}\n\nShare this ID with others to invite them.`);
+      setErrorMessage(null);
     } catch (error) {
       console.error('Error creating trip:', error);
-      alert('Failed to create trip. Please try again.');
+      // Show inline error banner instead of alert
+      setErrorMessage(
+        (error && (error as any).message) || 'Failed to create trip. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -99,6 +131,18 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, on
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-2xl">
+        {errorMessage && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-md">
+            <strong className="block font-medium">Error</strong>
+            <p className="text-sm">{errorMessage}</p>
+            <button
+              className="mt-2 text-xs text-red-600 underline"
+              onClick={() => setErrorMessage(null)}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
         <button
           onClick={onBack}
           className="mb-6 flex items-center gap-2 text-white hover:text-white/80 transition"

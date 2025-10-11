@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -19,15 +19,6 @@ export default {
           800: '#5b21b6',
           900: '#4c1d95',
         },
-      },
-      fontSize: {
-        'medium': '1.1rem', // 18px
-        'large': '1.16rem', // 18px
-        'extra-large': '1.25rem', // 18px
-        '2xl': '1.5rem', // 24px
-        '3xl': '1.875rem', // 30px
-        '4xl': '2.25rem', // 36px
-        '5xl': '3rem', // 48px
       },
     },
   },

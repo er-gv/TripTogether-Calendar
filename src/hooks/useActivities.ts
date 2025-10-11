@@ -63,6 +63,16 @@ export const useActivities = (tripId: string | null) => {
     }
   };
 
+  const editActivity = async (activityId: string, data: Partial<Activity>) => {
+    try {
+      await updateActivityFS(activityId, data);
+      await loadActivities();
+    } catch (error) {
+      console.error('Error editing activity:', error);
+      throw error;
+    }
+  };
+
   const toggleOptIn = async (activityId: string, userId: string, optIn: boolean) => {
     try {
       await toggleActivityOptIn(activityId, userId, optIn);
@@ -78,6 +88,7 @@ export const useActivities = (tripId: string | null) => {
     loading,
     createActivity,
     updateActivity,
+    editActivity,
     deleteActivity,
     toggleOptIn,
     refresh: loadActivities,

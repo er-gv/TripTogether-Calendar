@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plane, LogIn, PlusCircle } from 'lucide-react';
 import { LoginScreen } from './LoginScreen';
-import { CreateTripForm } from '../activities/CreateTripForm';
+import { CreateTripForm } from '../activities/CreateTripForm'
 
 interface SplashScreenProps {
   onLogin: (tripId: string) => void;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, User } from '../../types';
+import type {User, Activity}  from '../../types';
 import { MyActivityCard } from './MyActivityCard';
 import { Calendar } from 'lucide-react';
 
@@ -8,6 +8,7 @@ interface DashboardProps {
   currentUser: User;
   onToggleOptIn: (activityId: string, optIn: boolean) => void;
   onDeleteActivity: (activityId: string) => void;
+  onEditActivity: (activityId: string) => void;
   isOwner: boolean;
 }
 
@@ -16,6 +17,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   currentUser,
   onToggleOptIn,
   onDeleteActivity,
+  onEditActivity,
   isOwner,
 }) => {
   const myActivities = activities
@@ -24,14 +26,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="relative max-w-7xl mx-auto px-4 pb-8">
-      <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
+      <div className="mx-auto max-w-3xl bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
-            <Calendar className="text-white" size={24} />
+          <div className="p-3  rounded-xl">
+            {<img
+                src={currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.displayName)}`}
+                alt={currentUser.displayName}
+                className="w-20 h-20 rounded-full"
+              />
+            }
+            
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-800">My Activities</h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-lg text-gray-600">
               {myActivities.length} {myActivities.length === 1 ? 'activity' : 'activities'} you're joining
             </p>
           </div>
@@ -58,6 +66,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 currentUser={currentUser}
                 onToggleOptIn={onToggleOptIn}
                 onDeleteActivity={onDeleteActivity}
+                onEditActivity={onEditActivity}
                 canEdit={activity.creatorId === currentUser.id || isOwner}
               />
             ))}

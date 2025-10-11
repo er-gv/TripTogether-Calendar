@@ -1,14 +1,18 @@
 import React from 'react';
-import { Calendar, MapPin, Users, ExternalLink, Trash2 } from 'lucide-react';
-import { Activity, User } from '../../types';
+import { Calendar, MapPin, Users, ExternalLink, Trash2, Edit2, Edit } from 'lucide-react';
+import type { Activity, User } from '../../types';
 import { formatDateTime } from '../../utils/helpers';
+import RichTextViewer from '../common/RichTextViewer';
 
 interface MyActivityCardProps {
   activity: Activity;
   currentUser: User;
   onToggleOptIn: (activityId: string, optIn: boolean) => void;
   onDeleteActivity: (activityId: string) => void;
+  onEditActivity: (activityId: string) => void;
   canEdit: boolean;
+  isActive?: boolean;
+  onSelect?: (activityId: string) => void;
 }
 
 export const MyActivityCard: React.FC<MyActivityCardProps> = ({
@@ -16,12 +20,18 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
   currentUser,
   onToggleOptIn,
   onDeleteActivity,
+  onEditActivity,
   canEdit,
+  isActive,
+  onSelect,
 }) => {
   const isOptedIn = activity.optedInUsers.includes(currentUser.id);
+  const containerClass = isActive
+    ? 'border-4 border-purple-600 rounded-xl p-4 transition bg-gray-100'
+    : 'border-4 border-gray-200 rounded-xl p-4 hover:border-purple-400 transition bg-white';
 
   return (
-    <div className="border-2 border-gray-200 rounded-xl p-4 hover:border-purple-400 transition">
+    <div className={containerClass} onClick={() => onSelect?.(activity.id)}>
       <div className="flex gap-4">
         {/* Thumbnail */}
         <div className="flex-shrink-0">
@@ -30,7 +40,7 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
             alt={activity.name}
             className="w-32 h-32 object-cover rounded-lg shadow-md"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400';
+              (e.target as HTMLImageElement).src = 'https://p7.hiclipart.com/preview/871/125/261/world-travel-attractions-landmark-vector-material.jpg';
             }}
           />
         </div>
@@ -39,16 +49,27 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-bold text-gray-800 mb-1">
+              <h5 className="text-xl font-bold text-gray-800 mb-1">
                 {activity.name}
-              </h3>
-              <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                {activity.description}
-              </p>
+              </h5>
+              <div className="text-md text-black-600 mb-3">
+                <RichTextViewer html={activity.description ?? ''} />
+              </div>
             </div>
 
             {/* Actions */}
             <div className="flex gap-2 flex-shrink-0">
+              {canEdit && (
+                <button
+                  onClick={() => {
+                    onEditActivity(activity.id);
+                  }}
+                  className="p-2 text-orange-900 hover:bg-red-50 rounded-lg transition"
+                  title="Edit activity"
+                >
+                  <Edit size={18} />
+                </button>
+              )}
               {canEdit && (
                 <button
                   onClick={() => {
@@ -61,7 +82,11 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
                 >
                   <Trash2 size={18} />
                 </button>
+                
               )}
+              
+                
+              
             </div>
           </div>
 
@@ -96,15 +121,13 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
           {/* Links */}
           {activity.mapsLink && (
             
-              href={activity.mapsLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              <MapPin size={14} />
-              View on Google Maps
-              <ExternalLink size={12} />
-            </a>
+              <a href={activity.mapsLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-extra-large"
+                          ><MapPin size={14} />
+                           View on Google Maps 
+                            <ExternalLink size={12} /></a>
           )}
         </div>
       </div>

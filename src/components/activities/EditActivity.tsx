@@ -1,53 +1,55 @@
 import React, { useState } from 'react';
-import { Plus, Image, MapPin, Calendar, Tag, Loader } from 'lucide-react';
+import { FilePen, Image, MapPin, Calendar, Tag, Loader, Users } from 'lucide-react';
 import { Button } from '../common/Button';
-import { AVAILABLE_TAGS } from '../../types';
+import { AVAILABLE_TAGS, type Activity } from '../../types';
 import { formatDateTime, isValidUrl, toDateTimeLocal } from '../../utils/helpers';
 import RichTextEditor from '../common/RichTextEditor';
 import type { Trip } from '../../types';
 
-interface CreateActivityProps {
-  onCreateActivity: (activityData: {
-    name: string;
-    description: string;
-    thumbnailUrl: string;
-    mapsLink: string;
-    dateTime: string;
-    location: string;
-    tags: string[];
-  }) => void | Promise<void>;
+interface EditActivityProps {
+  activity: Activity;
+  onEditActivity: (activityId: string, activityData: Partial<Activity>) => void | Promise<void>;
   onCancel: () => void;
   activeTrip: Trip;
 }
 
-export const CreateActivity: React.FC<CreateActivityProps> = ({
-  onCreateActivity,
+export const EditActivity: React.FC<EditActivityProps> = ({
+  activity,
+  onEditActivity,
   onCancel,
   activeTrip,
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  // Runtime guard: CreateActivity requires a valid Trip object. TypeScript makes this
+  // Runtime guard: EditActivity requires a valid Trip object. TypeScript makes this
   // a required prop, but add a runtime check to catch misuse from JS consumers.
   if (!activeTrip) {
-    throw new Error('CreateActivity requires an activeTrip prop (Trip).');
+    throw new Error('EditActivity requires an activeTrip prop (Trip).');
   }
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    thumbnailUrl: 'https://p7.hiclipart.com/preview/871/125/261/world-travel-attractions-landmark-vector-material.jpg',
-    mapsLink: '',
-    dateTime: toDateTimeLocal(activeTrip.startDate),
-    location: '',
-    tags: [] as string[],
-  });
-
-  React.useEffect(() => {
-    // When opening the create form, default the datetime to the trip start date
-    setFormData(prev => ({ ...prev, dateTime: toDateTimeLocal(activeTrip.startDate) }));
-  }, [activeTrip.startDate]);
+  const [formData, setFormData] = useState(() => ({
+    name: activity?.name || '',
+    description: activity?.description || '',
+    thumbnailUrl: activity?.thumbnailUrl || '',
+    mapsLink: activity?.mapsLink || '',
+    dateTime: activity?.dateTime || '',
+    location: activity?.location || '',
+    tags: activity?.tags ? [...activity.tags] : ([] as string[]),
+  }));
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Keep form in sync if the activity prop changes
+  React.useEffect(() => {
+    setFormData({
+      name: activity?.name || '',
+      description: activity?.description || '',
+      thumbnailUrl: activity?.thumbnailUrl || '',
+      mapsLink: activity?.mapsLink || '',
+      dateTime: activity?.dateTime || toDateTimeLocal(activeTrip.startDate),
+      location: activity?.location || '',
+      tags: activity?.tags ? [...activity.tags] : ([] as string[]),
+    });
+  }, [activity]);
 
   const toggleTag = (tag: string) => {
     setFormData(prev => ({
@@ -110,10 +112,10 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
       setSubmitError(null);
       try {
         // Support async handlers that return a Promise
-        await Promise.resolve(onCreateActivity(formData) as any);
+        await Promise.resolve(onEditActivity(activity.id, formData) as any);
       } catch (err) {
-        console.error('Create activity failed', err);
-        setSubmitError((err && (err as any).message) || 'Failed to create activity.');
+        console.error('Edit activity failed', err);
+        setSubmitError((err && (err as any).message) || 'Failed to edit activity.');
       } finally {
         setSubmitting(false);
       }
@@ -121,18 +123,18 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
 
     submit();
   };
-  const tripCaption = activeTrip.name.charAt(0).toUpperCase() + activeTrip.name.slice(1)
-  + ' (' + new Date(activeTrip.startDate).toDateString() + ' - ' + new Date(activeTrip.endDate).toDateString() + ')';
+  const tripCaption = activeTrip.name.charAt(0).toUpperCase() + activeTrip.name.slice(1) + ' (' + new Date(activeTrip.startDate).toDateString() + ' - ' + new Date(activeTrip.endDate).toDateString() + ')';
+  const activityName = formData.name ? `"${formData.name}"` : 'this activity';
   return (
     <div className="relative max-w-4xl mx-auto px-4 pb-8">
       <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl">
-            <Plus className="text-white" size={24} />
+            <FilePen className="text-white" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Create New Activity</h2>
-            <p className="text-sm text-gray-600">Add a new activity to trip {tripCaption}</p>
+            <h2 className="text-2xl font-bold text-gray-800">Edit Activity</h2>
+            <p className="text-sm text-gray-600">Change activity details for {activityName} ({tripCaption})</p>
           </div>
         </div>
 
@@ -275,8 +277,8 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
 
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t">
-            <Button type="submit" variant="success" icon={submitting ? Loader : Plus} className="flex-1" disabled={submitting}>
-              {submitting ? 'Creating...' : 'Create Activity'}
+            <Button type="submit" variant="success" icon={submitting ? Loader : FilePen} className="flex-1" disabled={submitting}>
+              {submitting ? 'Updating...' : 'Update Activity'}
             </Button>
             <Button type="button" variant="secondary" onClick={onCancel} className="flex-1">
               Cancel

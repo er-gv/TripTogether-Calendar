@@ -1,15 +1,18 @@
 import React from 'react';
-import { LayoutDashboard, Search, Plus } from 'lucide-react';
+  import { LayoutDashboard, Search, Plus, Users } from 'lucide-react';
+
+type NavView = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
 interface NavigationProps {
-  currentView: 'dashboard' | 'browse' | 'create';
-  onViewChange: (view: 'dashboard' | 'browse' | 'create') => void;
+  currentView: NavView;
+  onViewChange: (view: NavView) => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) => {
   const navItems = [
     { id: 'dashboard' as const, label: 'My Dashboard', icon: LayoutDashboard },
     { id: 'browse' as const, label: 'Browse Activities', icon: Search },
+    { id: 'members' as const, label: 'Members', icon: Users },
   ];
 
   return (

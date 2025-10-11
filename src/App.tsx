@@ -1,26 +1,28 @@
-import React, {useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SplashScreen } from './components/auth/SplashScreen';
 import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { ActivityBrowser } from './components/activities/ActivityBrowser';
 import { CreateActivity } from './components/activities/CreateActivity';
+import { EditActivity } from './components/activities/EditActivity';
 import { MembersList } from './components/members/MembersList';
 import { useAuth } from './hooks/useAuth';
 import { useTrip } from './hooks/useTrip';
-import { useActivities } from './hooks/useActivities.ts';
+import { useActivities } from './hooks/useActivities';
 import { createTrip } from './services/firestore';
 import { Loader } from 'lucide-react';
 
-type View = 'dashboard' | 'browse' | 'create';
+type View = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
 function App() {
   const { user, loading: authLoading, signInWithGoogle } = useAuth();
   const [currentTripId, setCurrentTripId] = useState<string | null>(null);
   const { currentTrip, members, loading: tripLoading } = useTrip(currentTripId, user?.id || null);
-  const { activities, loading: activitiesLoading, createActivity, deleteActivity, toggleOptIn } = useActivities(currentTripId);
+  const { activities, loading: activitiesLoading, createActivity, deleteActivity, toggleOptIn, editActivity } = useActivities(currentTripId);
   
   const [view, setView] = useState<View>('dashboard');
+  const [editingActivityId, setEditingActivityId] = useState<string | null>(null);
   const [filterDate, setFilterDate] = useState('');
   const [filterMember, setFilterMember] = useState('');
   const [filterTags, setFilterTags] = useState<string[]>([]);
@@ -116,6 +118,23 @@ function App() {
     }
   };
 
+  const handleEditActivity = (activityId: string) => {
+    // open edit form for the activity
+    setEditingActivityId(activityId);
+    setView('edit');
+  };
+
+  const handleSaveEditedActivity = async (activityId: string, data: any) => {
+    try {
+      await editActivity(activityId, data);
+      setView('dashboard');
+      setEditingActivityId(null);
+    } catch (error) {
+      console.error('Error saving edited activity:', error);
+      alert('Failed to save changes. Please try again.');
+    }
+  };
+
   const handleLogout = () => {
     setCurrentTripId(null);
     setView('dashboard');
@@ -153,10 +172,18 @@ function App() {
                 currentUser={user}
                 onToggleOptIn={handleToggleOptIn}
                 onDeleteActivity={handleDeleteActivity}
+                onEditActivity={handleEditActivity}
                 isOwner={isOwner}
               />
             </div>
-            <div>
+            
+          </div>
+        )}
+
+        {view === 'members' && (
+          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
+            <div className="lg:col-span-2">
+           
               <MembersList
                 members={members}
                 ownerId={currentTrip.ownerId}
@@ -187,6 +214,15 @@ function App() {
           <CreateActivity
             onCreateActivity={handleCreateActivity}
             onCancel={() => setView('dashboard')}
+            activeTrip={currentTrip}
+          />
+        )}
+        {view === 'edit' && editingActivityId && (
+          <EditActivity
+            activity={activities.find(a => a.id === editingActivityId)!}
+            onEditActivity={handleSaveEditedActivity}
+            onCancel={() => { setView('dashboard'); setEditingActivityId(null); }}
+            activeTrip={currentTrip}
           />
         )}
       </div>

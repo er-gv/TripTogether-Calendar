@@ -1,7 +1,6 @@
 import React from 'react';
 import { MapPin, LogOut, Users } from 'lucide-react';
-import  User  from '../types/user;
-import  Trip  from '../types/trip;
+import type {User, Trip}  from '../../types';
 
 interface HeaderProps {
   trip: Trip;

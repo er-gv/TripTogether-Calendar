@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Activity, User } from '../../types';
-import { ActivityCard } from './ActivityCard';
+import ActivityCard from './ActivityCard';
 import { ActivityFilters}  from './ActivityFilters';
 import { Search } from 'lucide-react';
 
@@ -33,6 +33,7 @@ export const ActivityBrowser: React.FC<ActivityBrowserProps> = ({
   onFilterMemberChange,
   onFilterTagsChange,
 }) => {
+  const [selectedActivityId, setSelectedActivityId] = React.useState<string | null>(null);
   const filteredActivities = activities.filter(act => {
     if (filterDate && !act.dateTime.startsWith(filterDate)) return false;
     if (filterMember && act.creatorId !== filterMember) return false;
@@ -87,6 +88,8 @@ export const ActivityBrowser: React.FC<ActivityBrowserProps> = ({
                 onToggleOptIn={onToggleOptIn}
                 onDeleteActivity={onDeleteActivity}
                 canEdit={activity.creatorId === currentUser.id || isOwner}
+                isActive={selectedActivityId === activity.id}
+                onSelect={(id) => setSelectedActivityId(id === selectedActivityId ? null : id)}
               />
             ))}
           </div>
