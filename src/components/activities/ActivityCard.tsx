@@ -2,7 +2,7 @@ import React from 'react';
 import { Calendar, MapPin, Users, ExternalLink, Trash2, Check } from 'lucide-react';
 import type { Activity, User, Trip } from '@/types';
 
-import { formatDateTime } from '@/utils/helpers';
+import {formatDateTime} from '@/utils/datetime';
 import { getTripLocation } from '@/services/firestore';
 import { ActivityHeader} from '@/components/activities/ActivityHeader'; 
 import { ActivityParticipants } from '@/components/activities/ActivityParticipants'; 
@@ -41,12 +41,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       <div className="flex gap-4">
       <ActivityHeader
         name={activity.name}
-        currentUser={currentUser}
         location={locationName}
         dateTime={activity.dateTime}
         thumbnailUrl={activity.thumbnailUrl}
         mapsLink={activity.mapsLink}
-        tags={activity.tags}
+
       />
       </div>
         

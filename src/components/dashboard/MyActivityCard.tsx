@@ -3,10 +3,10 @@ import { Calendar, MapPin, Users, ExternalLink, Trash2, Space } from 'lucide-rea
 import type { Activity, User } from '@/types';
 import {ActivityHeader } from '@/components/activities/ActivityHeader';
 import {ActivityParticipants   } from '@/components/activities/ActivityParticipants';
-import  RichTextViewer  from '@/components/common/RichTextViewer';
+import ActivityContent from '@/components/activities/ActivityContent';
 import { Check } from 'lucide-react';
 import { formatDateTime } from '@/utils/datetime';
-import ActivityTags from '@/components/activities/ActivityTags';
+// ActivityTags now rendered inside ActivityContent
 
 interface MyActivityCardProps {
   activity: Activity;
@@ -31,19 +31,17 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
       
       
       
-      <div className="p-4 border border-blue-800 rounded-lg shadow-sm hover:shadow-md transition mb-4">
+      
       <ActivityHeader
         name={activity.name}
-        currentUser={currentUser}
         location={activity.location}
         dateTime={activity.dateTime}
         thumbnailUrl={activity.thumbnailUrl}
         mapsLink={activity.mapsLink}
-        tags={activity.tags}  
       />
-      <div className=" border-b border-gray-300 mt-3 mb-3" />
-      <RichTextViewer html={activity.description ?? ''} />
-      <div className=" border-b border-gray-300 mt-3 mb-3" />
+  <div className="my-4 border-b border-gray-300" />
+  <ActivityContent description={activity.description} tags={activity.tags} />
+  <div className="my-4 border-b border-gray-300" />
      
       <ActivityParticipants
         participants={activity.optedInUsers}
@@ -52,7 +50,7 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
       </div>
       
 
-</div>
+
      
       
       

@@ -13,7 +13,7 @@ export const ActivityTags: React.FC<ActivityTagsProps> = ({ tags, className = ''
       {tags.map((tag) => (
         <span
           key={tag}
-          className="px-3 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium"
+          className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full font-medium"
           title={tag}
         >
           {tag}

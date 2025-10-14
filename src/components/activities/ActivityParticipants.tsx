@@ -43,13 +43,16 @@ export const ActivityParticipants: React.FC<ActivityParticipantsProps> = ({
   };
 
   return (
-    <div className="mt-4 p-4">
-      <h3 className="block w-full text-lg font-bold text-gray-800 mb-3">Participants</h3>
-      <div className="w-full border-b border-gray-200 mb-3" />
+    <div className="p-2">
+      <div className="flex flex-col sm:flex-row sm:items-stretch sm:gap-4">
+        <div className="flex items-center sm:items-center">
+          <h4 className="text-base font-semibold text-gray-800 sm:whitespace-nowrap">Participants</h4>
+        </div>
 
-      <ul className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="flex-1">
+          <ul className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             {users.map((user) => (
-            <li key={user.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-md shadow-sm">
+            <li key={user.id} className="flex items-center gap-2 p-1 bg-gray-50 rounded-md shadow-sm">
                 {user.photoURL ? (
                 <img
                     src={user.photoURL}
@@ -69,15 +72,17 @@ export const ActivityParticipants: React.FC<ActivityParticipantsProps> = ({
 
             {/* If there are IDs with no user records yet, show them as placeholders */}
             {users.length < participants.length && participants.map(pid => {
-            if (users.find(u => u.id === pid)) return null;
-            return (
-                <li key={pid} className="flex items-center gap-3 p-2 bg-gray-50 rounded-md shadow-sm">
-                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-semibold">?</div>
-                <div className="text-gray-700 truncate">{pid}</div>
+              if (users.find(u => u.id === pid)) return null;
+              return (
+                <li key={pid} className="flex items-center gap-2 p-1 bg-gray-50 rounded-md shadow-sm">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-semibold">?</div>
+                  <div className="text-gray-700 truncate">{pid}</div>
                 </li>
-            );
+              );
             })}
-        </ul>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };
