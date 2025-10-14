@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SplashScreen } from './components/auth/SplashScreen';
 import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
-import { Dashboard } from './components/dashboard/Dashboard';
+import ActivitiesScroller from './components/dashboard/ActivitiesScroller';
 import { ActivityBrowser } from './components/activities/ActivityBrowser';
 import { CreateActivity } from './components/activities/CreateActivity';
 import { EditActivity } from './components/activities/EditActivity';
@@ -140,6 +140,46 @@ function App() {
     setView('dashboard');
   };
 
+  // Scroll to the first activity that falls on the given ISO day string (YYYY-MM-DDT...)
+  const scrollToDay = (iso: string) => {
+    try {
+      const targetDate = new Date(iso);
+      const targetDayKey = targetDate.toISOString().slice(0, 10);
+
+      // Find the DOM element that Dashboard attaches with data-day
+      const el = document.querySelector(`[data-day="${targetDayKey}"]`);
+      if (el) {
+        // Compute header/nav offset dynamically if possible
+        const headerEl = document.querySelector('header');
+        const navEl = document.querySelector('[data-nav]');
+        let offset = 120;
+        if (headerEl) offset = offset - 0 + (headerEl as HTMLElement).offsetHeight;
+        if (navEl) offset += (navEl as HTMLElement).offsetHeight;
+
+        const rect = (el as HTMLElement).getBoundingClientRect();
+        const top = window.scrollY + rect.top - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+        try {
+          const node = el as HTMLElement;
+          node.classList.remove('flash-highlight');
+          // Force reflow to restart animation
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          node.offsetWidth;
+          node.classList.add('flash-highlight');
+          const handle = () => {
+            node.classList.remove('flash-highlight');
+            node.removeEventListener('animationend', handle);
+          };
+          node.addEventListener('animationend', handle);
+        } catch (err) {
+          // ignore
+        }
+      }
+    } catch (err) {
+      // ignore
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -160,14 +200,14 @@ function App() {
       />
 
   {/* Navigation */}
-  <Navigation currentView={view} onViewChange={setView} trip={currentTrip} activities={activities} />
+  <Navigation currentView={view} onViewChange={setView} trip={currentTrip} activities={activities} onDayClick={scrollToDay} />
 
       {/* Main Content */}
       <div className="relative">
         {view === 'dashboard' && (
           <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
             <div className="lg:col-span-2">
-              <Dashboard
+              <ActivitiesScroller
                 activities={activities}
                 currentUser={user}
                 onToggleOptIn={handleToggleOptIn}

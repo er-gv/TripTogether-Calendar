@@ -24,35 +24,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     .filter(act => act.optedInUsers.includes(currentUser.id))
     .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
 
-  useEffect(() => {
-    const handler = (e: Event) => {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const detail = (e as CustomEvent).detail as { iso: string } | undefined;
-        if (!detail || !detail.iso) return;
-        const targetIso = new Date(detail.iso).toISOString();
-
-        // Find first activity occurring on that ISO date (compare date portion)
-        const targetDate = new Date(detail.iso);
-        const targetDayKey = targetDate.toISOString().slice(0, 10); // YYYY-MM-DD
-
-        // Query DOM for element with data-day attribute
-        const el = document.querySelector(`[data-day="${targetDayKey}"]`);
-        if (el) {
-          // Calculate offset to account for fixed header+nav. We'll use 120px as a safe estimate.
-          const offset = 120;
-          const rect = (el as HTMLElement).getBoundingClientRect();
-          const top = window.scrollY + rect.top - offset;
-          window.scrollTo({ top, behavior: 'smooth' });
-        }
-      } catch (err) {
-        // ignore
-      }
-    };
-
-    window.addEventListener('scrollToDay', handler as EventListener);
-    return () => window.removeEventListener('scrollToDay', handler as EventListener);
-  }, [myActivities]);
+  // Scrolling is handled externally via a prop callback passed down to DaysList
 
   return (
     <div className="relative max-w-7xl mx-auto px-4 pb-8">
