@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, MapPin, Users, ExternalLink, Trash2, Space } from 'lucide-react';
+import { Calendar, MapPin, Users, ExternalLink, Trash2, Space, FilePen } from 'lucide-react';
 import type { Activity, User } from '@/types';
 import {ActivityHeader } from '@/components/activities/ActivityHeader';
 import {ActivityParticipants   } from '@/components/activities/ActivityParticipants';
@@ -14,6 +14,7 @@ interface MyActivityCardProps {
   onToggleOptIn: (activityId: string, optIn: boolean) => void;
   onDeleteActivity: (activityId: string) => void;
   canEdit: boolean;
+  onEditActivity?: (activityId: string) => void;
 }
 
 export const MyActivityCard: React.FC<MyActivityCardProps> = ({
@@ -22,6 +23,7 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
   onToggleOptIn,
   onDeleteActivity,
   canEdit,
+  onEditActivity,
 }) => {
   const isOptedIn = activity.optedInUsers.includes(currentUser.id);
 
@@ -85,13 +87,22 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
               </button>
 
               {canEdit && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
-                  title="Delete activity"
-                >
-                  <Trash2 size={18} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onEditActivity && onEditActivity(activity.id); }}
+                    className="p-2 text-gray-700 hover:bg-gray-50 rounded-lg transition"
+                    title="Edit activity"
+                  >
+                    <FilePen size={18} />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                    title="Delete activity"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               )}
             </div>
           </div>

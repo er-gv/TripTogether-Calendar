@@ -159,8 +159,8 @@ function App() {
         onLogout={handleLogout}
       />
 
-      {/* Navigation */}
-      <Navigation currentView={view} onViewChange={setView} />
+  {/* Navigation */}
+  <Navigation currentView={view} onViewChange={setView} trip={currentTrip} activities={activities} />
 
       {/* Main Content */}
       <div className="relative">
