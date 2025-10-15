@@ -16,11 +16,99 @@ export const truncateText = (text: string, maxLength: number): string => {
 export const generateTripId = (): string => {
   return Math.random().toString(36).substring(2, 15);
 };
-
+// 
 // Helper to get normalized first and last dates for a trip.
 // Accepts a trip-like object (usually from `src/types`) and returns
 // ISO date strings or undefined when not available.
 import type { Trip } from '../types';
+import { readTagsCollection } from '@/services/firestore_api/tags';
+import type { Tag } from '@/types';
+
+// Synchronous getter for a trip's destination.
+// Firestore lookups are async, so this function reads from a local cache
+// (if available) and otherwise returns a sensible default. This keeps the
+// API synchronous for callers that expect a string.
+export const getTripDestination = (tripId: string): string => {
+  try {
+    // If some code persisted the trip in localStorage under `trip_<id>`, use it.
+    const key = `trip_${tripId}`;
+    const raw = typeof window !== 'undefined' ? window.localStorage.getItem(key) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<Trip> | null;
+      if (parsed && parsed.destination) return parsed.destination;
+    }
+  } catch (err) {
+    // ignore parsing/localStorage errors and fall through to default
+  }
+
+  // Fallback when destination not available synchronously
+  return 'unknown location';
+};
+
+
+// Synchronous getter for the app list of tags.
+// Firestore lookups are async, so this function reads from a local cache
+// (if available) and otherwise returns a sensible default. This keeps the
+// API synchronous for callers that expect a string[].
+export const getTagsList = (): Tag[] => {
+  const key = 'tags_list';
+  try {
+    const raw = typeof window !== 'undefined' ? window.localStorage.getItem(key) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw) as Tag[] | null;
+      if (parsed && parsed.length > 0) {
+        // Refresh cache in background
+        if (typeof window !== 'undefined') {
+          readTagsCollection()
+            .then((tags) => {
+              if (Array.isArray(tags)) {
+                try {
+                  window.localStorage.setItem(key, JSON.stringify(tags));
+                } catch (e) {
+                  /* ignore */
+                }
+                // notify listeners if any
+                try {
+                  window.dispatchEvent(new CustomEvent('tags-updated', { detail: tags }));
+                } catch (e) {
+                  /* ignore */
+                }
+              }
+            })
+            .catch(() => {});
+        }
+        return parsed;
+      }
+    }
+  } catch (err) {
+    // ignore parsing/localStorage errors and fall through to default
+  }
+
+  // If not cached, trigger a background fetch to populate cache and return empty for now
+  if (typeof window !== 'undefined') {
+    readTagsCollection()
+        .then((tags) => {
+          if (Array.isArray(tags)) {
+            try {
+              window.localStorage.setItem(key, JSON.stringify(tags));
+            } catch (e) {
+              /* ignore */
+            }
+            try {
+              window.dispatchEvent(new CustomEvent('tags-updated', { detail: tags }));
+            } catch (e) {
+              /* ignore */
+            }
+          }
+        })
+      .catch(() => {});
+  }
+
+  return [];
+}
+
+// Backwards-compatible alias: some code imports `getTags`.
+export const getTags = getTagsList;
 
 export const getTripBounds = (trip?: Partial<Trip> | null): { first?: string; last?: string } => {
   if (!trip) return {};

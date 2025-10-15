@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Plus, Image, MapPin, Calendar, Tag, Loader } from 'lucide-react';
 import { Button } from '../common/Button';
-import { AVAILABLE_TAGS } from '@/types';
+import { getTags } from '@/utils/helpers';
 import { isValidUrl } from '@/utils/helpers';
+import { getTripDestination } from '@/utils/helpers';
 import { formatDateTime, toDateTimeLocal } from '@/utils/datetime';
 import RichTextEditor from '@/components/common/RichTextEditor';
 import type { Trip } from '@/types';
@@ -39,7 +40,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
     thumbnailUrl: '',
     mapsLink: '',
     dateTime: toDateTimeLocal(activeTrip.startDate),
-    location: '',
+    location: getTripDestination(activeTrip.id),
     tags: [] as string[],
   });
 
@@ -257,18 +258,18 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
               Tags
             </label>
             <div className="flex flex-wrap gap-2">
-              {AVAILABLE_TAGS.map(tag => (
+              {getTags().map(tag => (
                 <button
-                  key={tag}
+                  key={tag.id}
                   type="button"
-                  onClick={() => toggleTag(tag)}
+                  onClick={() => toggleTag(tag.name)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                    formData.tags.includes(tag)
+                    formData.tags.includes(tag.name)
                       ? 'bg-purple-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {tag}
+                  {tag.name}
                 </button>
               ))}
             </div>

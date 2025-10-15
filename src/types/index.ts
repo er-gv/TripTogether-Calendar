@@ -35,10 +35,24 @@ export interface Activity {
   updatedAt: string;
 }
 
+export interface Tag {
+  id: string;
+  name: string;
+}
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
+  
+  signInWithEmail: (email: string, password: string) => Promise<void>;  
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
+  
+  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
+  signUpWithGoogle: () => Promise<void>;
+  signUpWithApple: () => Promise<void>;
+  signUpWithFacebook: () => Promise<void>;
+    
   signOut: () => Promise<void>;
 }
 
@@ -50,6 +64,8 @@ export interface TripContextType {
   createTrip: (tripData: Partial<Trip>) => Promise<string>;
   leaveTrip: () => void;
 }
+
+
 
 export const AVAILABLE_TAGS = [
   'sightseeing',

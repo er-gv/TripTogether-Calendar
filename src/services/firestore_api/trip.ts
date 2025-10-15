@@ -41,6 +41,15 @@ export const getTrip = async (tripId: string): Promise<Trip | null> => {
   } as Trip;
 };
 
+
+export const getAllTrips = async (): Promise<Trip[]> => {
+  const tripSnapshot = await getDocs(collection(db, TRIPS_COLLECTION));
+  return tripSnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  } as Trip));
+};
+
 export const updateTrip = async (tripId: string, data: Partial<Trip>): Promise<void> => {
   await updateDoc(doc(db, TRIPS_COLLECTION, tripId), {
     ...data,

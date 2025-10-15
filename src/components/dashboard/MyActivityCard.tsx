@@ -1,4 +1,4 @@
-import React from 'react';
+/*import React from 'react';
 import { Calendar, MapPin, Users, ExternalLink, Trash2, Space, FilePen } from 'lucide-react';
 import type { Activity, User } from '@/types';
 import {ActivityHeader } from '@/components/activities/ActivityHeader';
@@ -146,8 +146,8 @@ export const MyActivityCard: React.FC<MyActivityCardProps> = ({
         </div>
       </div>
     </div>
-    */
+    
   );
 };
 
-   
+   */

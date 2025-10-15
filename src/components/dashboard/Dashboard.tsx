@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import type { Activity, User } from '../../types';
-import { MyActivityCard } from './MyActivityCard';
+
 import { Calendar } from 'lucide-react';
+import ActivityCard from '../activities/ActivityCard';
 
 interface DashboardProps {
   activities: Activity[];
@@ -59,7 +60,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               const dayKey = new Date(activity.dateTime).toISOString().slice(0, 10);
               return (
                 <div key={activity.id} data-day={dayKey}>
-                  <MyActivityCard
+                  <ActivityCard
                     activity={activity}
                     currentUser={currentUser}
                     onToggleOptIn={onToggleOptIn}

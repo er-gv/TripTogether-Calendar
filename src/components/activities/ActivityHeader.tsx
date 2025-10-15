@@ -6,9 +6,9 @@ import { formatDateTime } from '@/utils/datetime';
 interface ActivityHeaderProps {
     name: string;
     location: string;
-    mapsLink: string;
+    mapsLink: string | null;
     dateTime: string;
-    thumbnailUrl: string;
+    thumbnailUrl: string;   
 }
 
 
@@ -19,6 +19,12 @@ export const ActivityHeader: React.FC<ActivityHeaderProps> = ({
     dateTime,
     thumbnailUrl,
 }) => {
+
+  if (location === null) {
+    location = 'along the way'; //default value
+    mapsLink = null;    
+  }
+  
   return (
     
     <div className="flex flex-col sm:flex-row sm:items-start gap-4">
