@@ -19,3 +19,6 @@ export const readTagsCollection = async (): Promise<Tag[]> => {
 
   return tagDocs.docs.map(doc => ({ id: doc.id, ...doc.data() } as Tag));
 };
+
+
+

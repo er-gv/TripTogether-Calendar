@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Trash2, Check } from 'lucide-react';
+import { Users, Trash2, FilePen, Check } from 'lucide-react';
 import type { Activity, User, Trip } from '@/types';
 
 import { ActivityHeader} from '@/components/activities/ActivityHeader'; 
@@ -16,6 +16,7 @@ interface ActivityCardProps {
   onDeleteActivity: (activityId: string) => void;
   onEditActivity?: (activityId: string) => void;
   canEdit: boolean;
+  canDelete: boolean;
   isActive?: boolean;
   onSelect?: (activityId: string) => void;
 }
@@ -23,10 +24,12 @@ interface ActivityCardProps {
 const ActivityCard: React.FC<ActivityCardProps> = ({
   activity,
   currentUser,
+  canEdit,
+  canDelete,
+  isActive,
   onToggleOptIn,
   onDeleteActivity,
-  canEdit,
-  isActive,
+  onEditActivity,
   onSelect,
 }) => {
   const isOptedIn = activity.optedInUsers.includes(currentUser.id);
@@ -45,7 +48,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           dateTime={activity.dateTime}
           thumbnailUrl={activity.thumbnailUrl}
           mapsLink={activity.mapsLink}
+          currentUser={currentUser}
+           
         />
+        
       </div>
         
       <div className="flex gap-4 pt-8">
@@ -78,8 +84,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             </>
           )}
         </button>
-
         {canEdit && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onEditActivity?.(activity.id);  }}
+                  className="p-2 text-emerald-600 hover:bg-blue-50 rounded-lg transition"
+                  title="Edit activity"
+                >
+                  <FilePen size={18} />
+                </button>
+         )}
+         { (
                 <button
                   onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
                   className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
@@ -88,6 +102,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
                   <Trash2 size={18} />
                 </button>
          )}
+
+        
       </div>      
     </div>
     

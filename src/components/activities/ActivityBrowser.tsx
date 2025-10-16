@@ -87,6 +87,7 @@ export const ActivityBrowser: React.FC<ActivityBrowserProps> = ({
                 currentUser={currentUser}
                 onToggleOptIn={onToggleOptIn}
                 onDeleteActivity={onDeleteActivity}
+                canDelete ={activity.creatorId === currentUser.id || isOwner}
                 canEdit={activity.creatorId === currentUser.id || isOwner}
                 isActive={selectedActivityId === activity.id}
                 onSelect={(id) => setSelectedActivityId(id === selectedActivityId ? null : id)}

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { ArrowLeft, PlusCircle, Loader } from 'lucide-react';
 import { Button } from '../common/Button';
+import type { User } from '@/types';
 
 interface CreateTripFormProps {
+  currentUser?: User | null;
   onCreateTrip: (tripData: {
     name: string;
     destination: string;
@@ -13,7 +15,7 @@ interface CreateTripFormProps {
   onBack: () => void;
 }
 
-export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, onBack }) => {
+export const CreateTripForm: React.FC<CreateTripFormProps> = ({ currentUser, onCreateTrip, onBack }) => {
   const [formData, setFormData] = useState({
     name: '',
     destination: '',
@@ -31,6 +33,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, on
     'America/Chicago',
     'America/Denver',
     'America/Los_Angeles',
+
     // Common North American zones
     'America/Toronto',
     'America/Vancouver',
@@ -45,7 +48,6 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, on
     'Europe/Paris',
     'Europe/Berlin',
     'Europe/Frankfurt',
-    'Europe/Madrid',
     'Europe/Cologne',
     'Europe/Amsterdam',
     'Europe/Zurich',
@@ -54,12 +56,8 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, on
     'Europe/Vienna',
     'Europe/Madrid',
     'Europe/Rome',
-    'Europe/Amsterdam',
-    'Europe/Zurich',
-    'Europe/Warsaw',
-    'Europe/Prague',
-    'Europe/Vienna',
-
+    
+    
     // Asia / Oceania
     'Asia/Tokyo',
     'Asia/Dubai',
@@ -103,7 +101,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, on
     setLoading(true);
     try {
       const tripId = await onCreateTrip(formData);
-      alert(`Trip created! Trip ID: ${tripId}\n\nShare this ID with others to invite them.`);
+      //alert(`Trip created! Trip ID: ${tripId}\n\nShare this ID with others to invite them.`);
       setErrorMessage(null);
     } catch (error) {
       console.error('Error creating trip:', error);
@@ -156,9 +154,13 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({ onCreateTrip, on
             <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
               Create New Trip
             </h2>
-            <p className="text-gray-600">
-              Set up your trip and invite friends to join
-            </p>
+              <p className="text-gray-600">
+                Set up your trip and invite friends to join
+              </p>
+              {/** show current user if provided */}
+              {currentUser && (
+                <p className="text-sm text-gray-500 mt-2">Creating as <strong>{currentUser.displayName}</strong> ({currentUser.email})</p>
+              )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

@@ -98,6 +98,7 @@ const ActivitiesScroller: React.FC<ActivitiesScrollerProps> = ({
                 onToggleOptIn={onToggleOptIn}
                 onDeleteActivity={onDeleteActivity}
                 canEdit={isOwner || activity.creatorId === currentUser.id}
+                canDelete={isOwner || activity.creatorId === currentUser.id}
                 isActive={false}
                 onSelect={undefined}
               />

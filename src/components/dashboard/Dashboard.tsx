@@ -65,8 +65,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     currentUser={currentUser}
                     onToggleOptIn={onToggleOptIn}
                     onDeleteActivity={onDeleteActivity}
-                    canEdit={activity.creatorId === currentUser.id || isOwner}
+                    canEdit={isOwner || activity.creatorId === currentUser.id}
+                    canDelete={isOwner || activity.creatorId === currentUser.id}
+                    isActive={false} // No active state in dashboard
                     onEditActivity={onEditActivity}
+                    onSelect={() => {}}
+                    
                   />
                 </div>
               );

@@ -1,14 +1,18 @@
 import React from 'react';
-import { MapPin } from 'lucide-react';
+import { MapPin, Compass } from 'lucide-react';
+import { ActivityTags } from './ActivityTags';
 import type {Activity, User } from '@/types';
 import { formatDateTime } from '@/utils/datetime';
+import  ActivityButtons  from './ActivityButtons';    
 
 interface ActivityHeaderProps {
     name: string;
     location: string;
-    mapsLink: string | null;
+    mapsLink: string;
     dateTime: string;
-    thumbnailUrl: string;   
+    thumbnailUrl: string;
+    currentUser: User;
+    
 }
 
 
@@ -18,30 +22,24 @@ export const ActivityHeader: React.FC<ActivityHeaderProps> = ({
     mapsLink,
     dateTime,
     thumbnailUrl,
+    
+    
 }) => {
-
-  if (location === null) {
-    location = 'along the way'; //default value
-    mapsLink = null;    
-  }
-  
   return (
     
-    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+    <div className="flex items-start gap-6">
       <img
         src={thumbnailUrl === '' ? '/default_thumbnail.jpg' : thumbnailUrl}
         alt={name}
-        className="w-full sm:w-40 sm:h-40 h-auto object-cover rounded-lg shadow-md"
+        className="w-40 h-40 object-cover rounded-lg shadow-md"
+        
       />
 
-      <div className="flex-1 min-w-0 sm:flex sm:flex-col sm:justify-between sm:h-40">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800 mt-2 truncate">{name}</h1>
-          <div className="text-sm text-gray-600 mt-1">{formatDateTime(dateTime)}</div>
-          {/* tags removed from header - rendered elsewhere */}
-        </div>
-
-        <div className="flex items-center gap-1 mt-2 sm:mt-1">
+      <div className="flex-1 min-w-0">
+        
+        <h1 className="text-xl font-bold text-gray-800  mt-2 truncate">{name}</h1>
+        <h2 className="text-xl xl:text-gray-700 mt-1 ">{formatDateTime(dateTime)}</h2>
+        <div className="flex items-bottom   ">
             
           {mapsLink ? (
             <>
@@ -63,6 +61,8 @@ export const ActivityHeader: React.FC<ActivityHeaderProps> = ({
             </>
           )}
           
+        </div>
+        <div className="flex items-center mt-2">
         </div>
         
         

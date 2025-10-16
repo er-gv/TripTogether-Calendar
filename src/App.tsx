@@ -11,6 +11,7 @@ import { useAuth } from './hooks/useAuth';
 import { useTrip } from './hooks/useTrip';
 import { useActivities } from './hooks/useActivities';
 import { createTrip } from './services/firestore';
+import { auth } from './services/firebase';
 import { Loader } from 'lucide-react';
 
 type View = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
@@ -41,23 +42,30 @@ function App() {
 
   // Show splash screen if not logged in or no trip selected
   if (!user || !currentTripId) {
-    const handleLogin = async (tripId: string) => {
+    const handleJoinTrip = async (tripId: string) => {
       try {
-        await signInWithGoogle();
+        // Ensure signed in
+        if (!user) await signInWithGoogle();
         setCurrentTripId(tripId);
       } catch (error) {
-        console.error('Login error:', error);
-        alert('Failed to login. Please try again.');
+        console.error('Join trip/login error:', error);
+        alert('Failed to join trip. Please try again.');
       }
     };
 
     const handleCreateTrip = async (tripData: any) => {
       try {
-        await signInWithGoogle();
+        // Only prompt for Google auth if there's no signed-in user
+        if (!user) await signInWithGoogle();
+
+        // Prefer the real auth.currentUser uid (more up-to-date), fall back to hook user
+        const ownerId = auth.currentUser?.uid || user?.id;
+        if (!ownerId) throw new Error('Unable to determine signed-in user.');
+
         const tripId = await createTrip({
           ...tripData,
-          ownerId: user!.id,
-          memberIds: [user!.id],
+          ownerId,
+          memberIds: [ownerId],
         });
         setCurrentTripId(tripId);
         return tripId;
@@ -67,7 +75,7 @@ function App() {
       }
     };
 
-    return <SplashScreen onLogin={handleLogin} onCreateTrip={handleCreateTrip} />;
+  return <SplashScreen onLogin={handleJoinTrip} onCreateTrip={handleCreateTrip} currentUser={user} />;
   }
 
   // Show loading while trip data loads

@@ -7,7 +7,7 @@ interface DaysListProps {
   onDayClick?: (iso: string) => void;
 }
 
-const buildDayObjects = (start?: string, end?: string) => {
+export const buildDayObjects = (start?: string, end?: string) => {
   if (!start || !end) return [] as { label: string; iso: string }[];
   const s = new Date(start);
   const e = new Date(end);
