@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -18,8 +18,18 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+export const facebookProvider = new FacebookAuthProvider();
+// Apple uses the OAuthProvider with providerId 'apple.com'
+export const appleProvider = new OAuthProvider('apple.com');
 
 // Configure Google Provider
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
+
+// Configure Facebook provider (optional scopes can be added)
+facebookProvider.setCustomParameters({
+  display: 'popup'
+});
+
+// Apple provider configuration may require additional params set in Firebase console

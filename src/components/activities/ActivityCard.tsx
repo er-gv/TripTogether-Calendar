@@ -2,7 +2,7 @@ import React from 'react';
 import { Users, Trash2, FilePen, Check } from 'lucide-react';
 import type { Activity, User, Trip } from '@/types';
 
-import { ActivityHeader} from '@/components/activities/ActivityHeader'; 
+import ActivityHeader from '@/components/activities/ActivityHeader'; 
 import { ActivityParticipants } from '@/components/activities/ActivityParticipants'; 
 
 import ActivityContent from './ActivityContent';
@@ -48,8 +48,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           dateTime={activity.dateTime}
           thumbnailUrl={activity.thumbnailUrl}
           mapsLink={activity.mapsLink}
-          currentUser={currentUser}
-           
         />
         
       </div>

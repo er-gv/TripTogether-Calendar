@@ -55,11 +55,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 animate-gradient-xy"></div>
+      <div className="absolute inset-0 "></div>
       
       {/* Background Image Overlay */}
       <div 
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 "
         style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600)',
           backgroundSize: 'cover',
@@ -70,28 +70,27 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
       {/* Content */}
       <div className="relative z-10 max-w-2xl w-full">
         {/* Logo & Title */}
-        <div className="text-center mb-12 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-28 h-28 bg-white rounded-full shadow-2xl mb-6 transform hover:scale-110 transition duration-300">
-            <img src="/compass.jpg" alt="TripTogether Logo"  />
+        <div className="text-center mb-12 group bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-3xl p-8 shadow-2xl   ">
+          <div className="inline-flex items-center justify-center w-20 h-20  rounded-full ">
+            <img src="/compass.png" alt="TripTogether Logo"  />
             
-          </div>
-          <h1 className="text-6xl font-bold text-white mb-4 drop-shadow-lg">
+          
+          <h1 className="text-6xl font-bold text-white drop-shadow-lg mb-2">
             TripTogether
           </h1>
-          <p className="text-2xl text-white/90 drop-shadow">
+          </div>
+          <div className="text-2xl text-white/90 drop-shadow">
             Plan adventures with friends & family
-          </p>
-        </div>
+          </div>
 
-        {/* Action Cards */}
-        <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-2 pt-10">
           {/* Join Existing Trip */}
           <button
             onClick={() => setMode('auth-join')}
-            className="group bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-3xl p-8 shadow-2xl hover:shadow-pink-500/50 transform hover:scale-105 transition duration-300"
+            
           >
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-12 transition duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4 hover:rotate-[65deg] transition duration-[500ms] ">
                 <LogIn size={32} className="text-white" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-2">
@@ -105,11 +104,13 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
 
           {/* Create New Trip */}
           <button
+            
+          
             onClick={() => setMode('auth-create')}
-            className="group bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-3xl p-8 shadow-2xl hover:shadow-pink-500/50 transform hover:scale-105 transition duration-300"
+            
           >
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-12 transition duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4 hover:rotate-[65deg] transition duration-[500ms]">
                 <PlusCircle size={32} className="text-white" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-2">
@@ -121,9 +122,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
             </div>
           </button>
         </div>
-
-        {/* Features */}
-        <div className="mt-12 bg-white/10 backdrop-blur rounded-2xl p-6">
+         {/* Features */}
+        <div className="mt-12 bg-white/20 backdrop-blur rounded-2xl p-6">
           <div className="grid grid-cols-3 gap-4 text-center text-white">
             <div>
               <div className="text-3xl font-bold mb-1">✨</div>
@@ -139,6 +139,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <style>{`

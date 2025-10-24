@@ -4,10 +4,12 @@ import type {User as FirebaseUser} from 'firebase/auth';
 import { 
   signInWithPopup, 
   signOut as firebaseSignOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
 } from 'firebase/auth';
 
-import { auth, googleProvider } from '@/services/firebase';
+import { auth, googleProvider, facebookProvider, appleProvider } from '@/services/firebase';
 import type{ User } from '@/types';
 import { createOrUpdateUser } from '@/services/firestore';
 
@@ -46,6 +48,42 @@ const useAuth = () => {
     }
   };
 
+  const signInWithFacebook = async () => {
+    try {
+      await signInWithPopup(auth, facebookProvider);
+    } catch (error) {
+      console.error('Error signing in with Facebook:', error);
+      throw error;
+    }
+  };
+
+  const signInWithApple = async () => {
+    try {
+      await signInWithPopup(auth, appleProvider);
+    } catch (error) {
+      console.error('Error signing in with Apple:', error);
+      throw error;
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error('Error signing up with email:', error);
+      throw error;
+    }
+  };
+
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error('Error signing in with email:', error);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -55,7 +93,7 @@ const useAuth = () => {
     }
   };
 
-  return { user, loading, signInWithGoogle, signOut };
+  return { user, loading, signInWithGoogle, signInWithFacebook, signInWithApple, signUpWithEmail, signInWithEmail, signOut };
 };
 
 export { useAuth };

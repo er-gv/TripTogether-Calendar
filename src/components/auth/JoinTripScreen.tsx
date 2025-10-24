@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Loader } from 'lucide-react';
+import { Loader, LogOut } from 'lucide-react';
+
 import { useAuth } from '@/hooks/useAuth';
 import { auth } from '@/services/firebase';
 import { getAllTrips } from '@/services/firestore_api/trip';
@@ -12,7 +13,7 @@ interface JoinTripScreenProps {
 }
 
 export const JoinTripScreen: React.FC<JoinTripScreenProps> = ({ onSelectTrip, onBack }) => {
-  const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading: authLoading, signInWithGoogle, signInWithApple, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +46,7 @@ export const JoinTripScreen: React.FC<JoinTripScreenProps> = ({ onSelectTrip, on
   }, []);
 
   if (authLoading || loading) {
+    
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -55,6 +57,7 @@ export const JoinTripScreen: React.FC<JoinTripScreenProps> = ({ onSelectTrip, on
     );
   }
 
+  const backgroundStyle = "text-center mb-12 group bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-3xl p-3 shadow-2xl hover:shadow-pink-500/50 transform hover:scale-105 transition duration-300";
   return (
     <div className="min-h-screen p-6 flex items-center justify-center"
     style={{
@@ -67,11 +70,15 @@ export const JoinTripScreen: React.FC<JoinTripScreenProps> = ({ onSelectTrip, on
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">Select a Trip</h2>
           <div className="flex items-center gap-2">
-            <button onClick={onBack} className="text-sm text-gray-600">Back</button>
+            
             <button
-              onClick={async () => { try { await signOut(); onBack(); } catch { onBack(); } }}
-              className="text-sm text-red-600"
-            >Sign out</button>
+                onClick={async () => { try { await signOut(); onBack(); } catch { onBack(); } }}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            
           </div>
         </div>
 

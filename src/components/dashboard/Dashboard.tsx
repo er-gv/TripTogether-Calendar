@@ -55,7 +55,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-4"
+            >
+              
             {myActivities.map(activity => {
               const dayKey = new Date(activity.dateTime).toISOString().slice(0, 10);
               return (

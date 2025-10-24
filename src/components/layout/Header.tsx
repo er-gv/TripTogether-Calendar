@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapPin, LogOut, Users } from 'lucide-react';
 import type {User, Trip}  from '../../types';
-
+import { LogoutButton } from '../common/LogoutButton';
 
 interface HeaderProps {
   trip: Trip;
@@ -30,6 +30,7 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex-1">
+              {/* Trip Title*/}
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 {trip.name}
               </h1>
@@ -57,13 +58,8 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
                 />
                 <span className="text-sm font-medium text-gray-700">{user.displayName}</span>
               </div>
-              <button
-                onClick={onLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-              >
-                <LogOut size={18} />
-                <span className="hidden sm:inline">Logout</span>
-              </button>
+              <LogoutButton onLogout={onLogout} />
+              
             </div>
             
           </div>
