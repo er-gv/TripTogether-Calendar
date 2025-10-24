@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SplashScreen } from './components/auth/SplashScreen';
 import { Header } from './components/layout/Header';
-import { Navigation } from './components/layout/Navigation';
+import { wipNavigation } from './components/layout/wip/wipNavigation';
 import ActivitiesScroller from './components/dashboard/ActivitiesScroller';
 import { ActivityBrowser } from './components/activities/ActivityBrowser';
 import { CreateActivity } from './components/activities/CreateActivity';
@@ -187,17 +187,20 @@ function App() {
       // ignore
     }
   };
-
+/**
+ * style={{
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    }}
+ */
   return (
-    <div className="min-h-screen" style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    }}>
-      {/* Background Image */}
-      <div className="absolute inset-0 opacity-10" style={{
-        backgroundImage: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600)',
+    
+    <div className="min-h-screen" 
+      
+        style={{
+        backgroundImage: 'url(https://images.unsplash.com/photo-1508710285745-edc8137d6b5b)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-      }}></div>
+      }}>
 
       {/* Header */}
       <Header
@@ -208,7 +211,13 @@ function App() {
       />
 
   {/* Navigation */}
-  <Navigation currentView={view} onViewChange={setView} trip={currentTrip} activities={activities} onDayClick={scrollToDay} />
+  <wipNavigation 
+    currentView={view} 
+    onViewChange={setView} 
+    trip={currentTrip} 
+    activities={activities} 
+    onDayClick={scrollToDay} 
+  />
 
       {/* Main Content */}
       <div className="relative">
@@ -275,6 +284,7 @@ function App() {
         )}
       </div>
     </div>
+    
   );
 }
 

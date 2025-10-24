@@ -10,7 +10,7 @@ interface HeaderProps {
   onLogout: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogout }) => {
+export const FixedHeader: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogout }) => {
   const formatDateRange = () => {
     const start = new Date(trip.startDate).toLocaleDateString('en-US', { 
       month: 'short', 

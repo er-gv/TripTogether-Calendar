@@ -91,7 +91,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
           >
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4 hover:rotate-[65deg] transition duration-[500ms] ">
-                <LogIn size={32} className="text-white" />
+                <Plane size={32} className="text-white" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-2">
                 Join a Trip
