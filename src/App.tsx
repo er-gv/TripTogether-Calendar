@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { SplashScreen } from './components/auth/SplashScreen';
 import { Header } from './components/layout/Header';
-import { wipNavigation } from './components/layout/wip/wipNavigation';
+import { WipNavigation } from './components/layout/wip/WipNavigation';
+import { WipTabsBar } from './components/layout/wip/WipTabsBar';
 import ActivitiesScroller from './components/dashboard/ActivitiesScroller';
 import { ActivityBrowser } from './components/activities/ActivityBrowser';
 import { CreateActivity } from './components/activities/CreateActivity';
@@ -13,6 +14,7 @@ import { useActivities } from './hooks/useActivities';
 import { createTrip } from './services/firestore';
 import { auth } from './services/firebase';
 import { Loader } from 'lucide-react';
+import { WipDaysList } from './components/layout/wip/WipDaysList';
 
 type View = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
@@ -210,17 +212,27 @@ function App() {
         onLogout={handleLogout}
       />
 
-  {/* Navigation */}
-  <wipNavigation 
+      {/* Navigation */}
+      <WipTabsBar
+      currentView={view} 
+      onViewChange={setView}  
+      trip={currentTrip} 
+      user={user.id}
+      />
+      <WipDaysList
+        activities={activities}
+      />
+  
+  {/**<WipNavigation 
     currentView={view} 
     onViewChange={setView} 
     trip={currentTrip} 
     activities={activities} 
     onDayClick={scrollToDay} 
-  />
+  />*/}
 
       {/* Main Content */}
-      <div className="relative">
+      {/*<div className="relative">
         {view === 'dashboard' && (
           <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
             <div className="lg:col-span-2">
@@ -282,7 +294,7 @@ function App() {
             activeTrip={currentTrip}
           />
         )}
-      </div>
+      </div>*/}
     </div>
     
   );

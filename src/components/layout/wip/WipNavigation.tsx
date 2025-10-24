@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, Search, Plus, Users } from 'lucide-react';
-import { wipDaysList } from './wipDaysList';
+
+import { WipDaysList }from '@/components/layout/wip/WipDaysList';
 import type { Trip, Activity } from '@/types';
 
 type NavView = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
-interface NavigationProps {
+interface WipNavigationProps {
   currentView: NavView;
   onViewChange: (view: NavView) => void;
-  trip: Trip;
-  activities: Activity[];
+  trip?: Trip | null;
+  activities?: Activity[];
   onDayClick?: (iso: string) => void;
 }
 
-export const wipNavigation: React.FC<NavigationProps> = ({ currentView, onViewChange, trip, activities = [], onDayClick }) => {
+export const WipNavigation: React.FC<WipNavigationProps> = ({ currentView, onViewChange, trip, activities = [], onDayClick }) => {
   const navItems = [
     { id: 'dashboard' as const, label: 'My Dashboard', icon: LayoutDashboard },
     { id: 'browse' as const, label: 'Browse Activities', icon: Search },
@@ -23,7 +24,7 @@ export const wipNavigation: React.FC<NavigationProps> = ({ currentView, onViewCh
   return (
     <>
       <div className="fixed left-0 right-0 top-20 md:top-48 z-40">
-        <div className="max-w-7xl mx-auto bg-white/95 p-4 md:p-6 rounded-2xl shadow-sm">
+        <div className="max-w-7xl mx-auto bg-gray-800 p-4 md:p-6 rounded-2xl shadow-sm">
           
           <div className="flex gap-2 flex-nowrap items-center overflow-x-auto md:overflow-visible md:flex-wrap md:gap-2 pb-2 md:pb-0">
             {navItems.map(item => {
@@ -53,7 +54,7 @@ export const wipNavigation: React.FC<NavigationProps> = ({ currentView, onViewCh
             </button>
           </div>
           {/* Days list component */}
-          <wipDaysList trip={trip} activities={activities} onDayClick={onDayClick} />
+          <WipDaysList trip={trip} activities={activities} onDayClick={onDayClick} />
         </div>
       </div>
 

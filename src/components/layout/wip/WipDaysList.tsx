@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Trip, Activity } from '@/types';
 
-interface DaysListProps {
+interface WipDaysListProps {
   trip?: Trip | null;
   activities?: Activity[];
   onDayClick?: (iso: string) => void;
@@ -25,7 +25,7 @@ export const buildDayObjects = (start?: string, end?: string) => {
   const out: { label: string; iso: string }[] = [];
   const cur = new Date(startDate);
   while (cur.getTime() <= endDate.getTime()) {
-    const weekday = cur.toLocaleDateString('en-US', { weekday: 'long' });
+    const weekday = cur.toLocaleDateString('en-US', { weekday: 'short' });
     const dd = String(cur.getDate()).padStart(2, '0');
     const mm = String(cur.getMonth() + 1).padStart(2, '0');
     const label = includeYear ? `${weekday}, ${dd}/${mm}/${String(cur.getFullYear())}` : `${weekday}, ${dd}/${mm}`;
@@ -35,7 +35,7 @@ export const buildDayObjects = (start?: string, end?: string) => {
   return out;
 };
 
-export const wipDaysList: React.FC<DaysListProps> = ({ trip, activities = [], onDayClick }) => {
+export const WipDaysList: React.FC<WipDaysListProps> = ({ trip, activities = [], onDayClick }) => {
   const days = buildDayObjects(trip?.startDate, trip?.endDate);
 
   const activeDayKeys = new Set<string>();
@@ -46,7 +46,7 @@ export const wipDaysList: React.FC<DaysListProps> = ({ trip, activities = [], on
   });
 
   return (
-    <div className="m-4 p-3 bg-green-500 rounded-md">
+    <div className="m-4 p-3 bg-green-9500 rounded-md">
       <span className="text-yellow-300 font-bold text-[18px]">list of days in the trip</span>
       {days.length > 0 && (
         <ul className="mt-3 flex gap-2 overflow-x-auto md:flex-wrap md:overflow-visible md:gap-2">
