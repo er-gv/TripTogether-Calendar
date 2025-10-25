@@ -21,7 +21,7 @@ interface WipTabsBarProps {
 export const WipTabsBar: React.FC<WipTabsBarProps> = ({ currentView, onViewChange, trip, user }) => {
 
 return (
-    <div className="fixed left-0 right-0 top-20 md:top-24 z-40 flex gap-2 flex-nowrap items-center overflow-x-auto md:overflow-visible md:flex-wrap md:gap-2 pb-5 md:pb-5 bg-gray-800/25 p-5 shadow-sm">
+    <div className="w-full z-40 flex gap-2 flex-nowrap items-center overflow-x-auto md:overflow-visible md:flex-wrap md:gap-2 bg-gray-800/25 p-5 shadow-sm">
         {navItems.map(item => {
             const Icon = item.icon;
             return (

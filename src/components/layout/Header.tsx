@@ -25,12 +25,8 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
   };
 
   return (
-    <>
-      <div
-        className="fixed top-0 left-0 right-0 z-50  backdrop-blur shadow-lg"
-       
-      >
-        <div className="max-w-7xl mx-auto px-4 py-4  p-8 shadow-2xl">
+    <div className="w-full backdrop-blur shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 py-4 p-8 shadow-2xl">
           <div className="flex items-center justify-between"
           style={{ backgroundImage: `url("/assets/header.jpeg")`,
             backgroundSize: 'cover',
@@ -72,9 +68,6 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
             
           </div>
         </div>
-      </div>
-      
-      
-    </>
+    </div>
   );
 };

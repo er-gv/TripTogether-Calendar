@@ -204,24 +204,27 @@ function App() {
         backgroundPosition: 'center',
       }}>
 
-      {/* Header */}
-      <Header
-        trip={currentTrip}
-        user={user}
-        memberCount={members.length}
-        onLogout={handleLogout}
-      />
+      {/* Header, Tabs and Days list - rendered sequentially with no gap */}
+      <div className="w-full">
+        <Header
+          trip={currentTrip}
+          user={user}
+          memberCount={members.length}
+          onLogout={handleLogout}
+        />
 
-      {/* Navigation */}
-      <WipTabsBar
-      currentView={view} 
-      onViewChange={setView}  
-      trip={currentTrip} 
-      user={user.id}
-      />
-      <WipDaysList
-        activities={activities}
-      />
+        <WipTabsBar
+          currentView={view}
+          onViewChange={setView}
+          trip={currentTrip}
+          user={user.id}
+        />
+
+        <WipDaysList 
+          trip={currentTrip}
+          activities={activities} />
+        
+      </div>
   
   {/**<WipNavigation 
     currentView={view} 
@@ -232,7 +235,7 @@ function App() {
   />*/}
 
       {/* Main Content */}
-      {/*<div className="relative">
+      {<div className="relative">
         {view === 'dashboard' && (
           <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
             <div className="lg:col-span-2">
@@ -294,7 +297,7 @@ function App() {
             activeTrip={currentTrip}
           />
         )}
-      </div>*/}
+      </div>}
     </div>
     
   );
