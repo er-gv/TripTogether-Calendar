@@ -42,7 +42,7 @@ export const ActivityBrowser: React.FC<ActivityBrowserProps> = ({
   });
 
   return (
-    <div className="relative max-w-7xl mx-auto px-4 pb-8">
+    <div className="flex gap-2 flex-nowrap items-center max-w-7xl mx-auto px-4 pb-8">
       <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl">
@@ -50,9 +50,12 @@ export const ActivityBrowser: React.FC<ActivityBrowserProps> = ({
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Browse Activities</h2>
-            <p className="text-sm text-gray-600">
-              {filteredActivities.length} {filteredActivities.length === 1 ? 'activity' : 'activities'} found
-            </p>
+            {/* make the count area its own scrollable pane in case content expands */}
+            <div className="max-h-52 overflow-auto">
+              <p className="text-sm text-gray-600">
+                {filteredActivities.length} {filteredActivities.length === 1 ? 'activity' : 'activities'} found
+              </p>
+            </div>
           </div>
         </div>
 

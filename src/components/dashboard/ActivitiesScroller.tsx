@@ -62,7 +62,7 @@ const ActivitiesScroller: React.FC<ActivitiesScrollerProps> = ({
   }, [containerRef, activities]);
 
   return (
-    <div className="relative max-w-7xl mx-auto px-4 pb-8">
+    <div className="flex gap-2 flex-nowrap items-center max-w-7xl mx-auto px-4 pb-8">
       <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">

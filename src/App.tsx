@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SplashScreen } from './components/auth/SplashScreen';
 import { Header } from './components/layout/Header';
-import { WipNavigation } from './components/layout/wip/WipNavigation';
-import { WipTabsBar } from './components/layout/wip/WipTabsBar';
+import { Navigation } from './components/layout/Navigation';
 import ActivitiesScroller from './components/dashboard/ActivitiesScroller';
 import { ActivityBrowser } from './components/activities/ActivityBrowser';
 import { CreateActivity } from './components/activities/CreateActivity';
@@ -13,8 +12,9 @@ import { useTrip } from './hooks/useTrip';
 import { useActivities } from './hooks/useActivities';
 import { createTrip } from './services/firestore';
 import { auth } from './services/firebase';
-import { Loader } from 'lucide-react';
-import { WipDaysList } from './components/layout/wip/WipDaysList';
+import { Loader, Navigation as NavIcon } from 'lucide-react';
+import { buildDayObjects, WipDaysList } from './components/layout/wip/WipDaysList';
+
 
 type View = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
@@ -189,53 +189,59 @@ function App() {
       // ignore
     }
   };
-/**
+  
+  const headerHeight = 64; // px
+  /**
  * style={{
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     }}
  */
   return (
-    
-    <div className="min-h-screen" 
+
+    <article className=" w-full h-[800px] rounded-lg shadow-lg"
+            >
       
-        style={{
-        backgroundImage: 'url(https://images.unsplash.com/photo-1508710285745-edc8137d6b5b)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}>
-
-      {/* Header, Tabs and Days list - rendered sequentially with no gap */}
-      <div className="w-full">
-        <Header
-          trip={currentTrip}
-          user={user}
-          memberCount={members.length}
-          onLogout={handleLogout}
-        />
-
-        <WipTabsBar
+        
+      {/* Header (sticky inside the container) */}
+      <Header trip={currentTrip} user={user} memberCount={members.length} onLogout={handleLogout} />
+      
+      {/* Nav below header — sticky with top = headerHeight so it remains under header */}
+      
+                    
+      {/* Main Content */}
+      {/* This is the scroll container. Sticky children will stick inside it. */}
+      <div className="h-full">
+      <nav className="sticky z-10 flex gap-6 px-4 items-center
+      bg-gradient-to-br from-pink-500 via-orange-400 to-orange-300">
+        <Navigation
           currentView={view}
           onViewChange={setView}
+          activities={activities}
           trip={currentTrip}
-          user={user.id}
+          onDayClick={scrollToDay}
         />
+      </nav>
+      <section className=" w-full h-[800px] shadow-lg"
+            style={{ backgroundImage: `url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600")`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+          }}>
+      <div className="h-full overflow-auto">
+      <main className="p-4 space-y-4">
 
-        <WipDaysList 
-          trip={currentTrip}
-          activities={activities} />
-        
-      </div>
-  
-  {/**<WipNavigation 
-    currentView={view} 
-    onViewChange={setView} 
-    trip={currentTrip} 
-    activities={activities} 
-    onDayClick={scrollToDay} 
-  />*/}
+        {view === 'members' && (
+          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
+            <div className="lg:col-span-2">
+           
+              <MembersList
+                members={members}
+                ownerId={currentTrip.ownerId}
+                currentUserId={user.id}
+              />
+            </div>
+          </div>
+        )}
 
-      {/* Main Content */}
-      {<div className="relative">
         {view === 'dashboard' && (
           <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
             <div className="lg:col-span-2">
@@ -249,19 +255,6 @@ function App() {
               />
             </div>
             
-          </div>
-        )}
-
-        {view === 'members' && (
-          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
-            <div className="lg:col-span-2">
-           
-              <MembersList
-                members={members}
-                ownerId={currentTrip.ownerId}
-                currentUserId={user.id}
-              />
-            </div>
           </div>
         )}
 
@@ -297,10 +290,19 @@ function App() {
             activeTrip={currentTrip}
           />
         )}
-      </div>}
-    </div>
+            {/* repeat sections to create scrollable content */}
+          </main>
+      </div>
+      </section>
+      </div>
+      
+
+    </article>
+ 
+    
+
     
   );
-}
+};
 
 export default App;

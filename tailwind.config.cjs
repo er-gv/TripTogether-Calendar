@@ -20,7 +20,11 @@ module.exports = {
           900: '#4c1d95',
         },
       },
+      // custom font size utility available as `text-2lg`
+      fontSize: {
+        '2lg': ['1.375rem', { lineHeight: '1.75rem' }], // ~22px
+      },
     },
   },
   plugins: [],
-}
+};

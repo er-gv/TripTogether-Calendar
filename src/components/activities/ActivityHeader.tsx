@@ -15,44 +15,41 @@ interface ActivityHeaderProps {
 
 const ActivityHeader: React.FC<ActivityHeaderProps> = ({ name, location, mapsLink, dateTime, thumbnailUrl = '', buttons }) => {
   return (
-    <div className="grid grid-cols-[40%_60%] items-start gap-4">
-      {/* Left: thumbnail */}
-      <div className="flex items-start">
+    // use a horizontal flex layout where thumbnail is fixed 48x48 and the
+    // content pane to the right matches that height (h-12)
+    <div className="flex items-center gap-4">
+      {/* Left: thumbnail (180x180) */}
+      <div className="flex-none w-[180px] h-[180px]">
         <img
           src={thumbnailUrl === '' ? '/default_thumbnail.jpg' : thumbnailUrl}
           alt={name}
-          className="w-60 h-60 object-cover rounded-lg shadow-md"
+          className="w-full h-full object-cover rounded-md shadow-md"
         />
       </div>
 
-      {/* Right: text area with buttons row at bottom-right */}
-      <div className="min-w-0 flex flex-col justify-between h-60">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">{name}</h1>
+      {/* Right: content pane matching thumbnail height (180px) */}
+      <div className="flex-1 min-w-0 h-[180px] flex items-center justify-between">
+        <div className="min-w-0 overflow-hidden">
+          <h1 className="text-base font-bold text-gray-800 truncate">{name}</h1>
 
-          <div className="flex items-center mt-2 text-sm text-gray-700">
+          <div className="flex items-center text-xs text-gray-700 truncate">
             {mapsLink ? (
               <>
-                <MapPin className="inline-block w-4 h-4 text-blue-600 mr-1" />
-                <a href={mapsLink} target="_blank" rel="noopener noreferrer" className="text-md text-blue-600 hover:underline">
+                <MapPin className="inline-block w-3 h-3 text-blue-600 mr-1 flex-shrink-0" />
+                <a href={mapsLink} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate">
                   {location}
                 </a>
               </>
             ) : (
               <>
-                <MapPin className="inline-block w-4 h-4 text-gray-400 mr-1" />
-                <span>{location}</span>
+                <MapPin className="inline-block w-3 h-3 text-gray-400 mr-1 flex-shrink-0" />
+                <span className="truncate">{location}</span>
               </>
             )}
           </div>
-
-          <div className="flex items-center mt-2 text-sm text-gray-600">
-            <CalendarDays className="inline-block w-4 h-4 text-gray-400 mr-1" />
-            <div>{formatDateTime(dateTime)}</div>
-          </div>
         </div>
 
-        <div className="self-start mt-3 bg-green-100">
+        <div className="flex items-center ml-4">
           {buttons ?? (
             <ActivityButtons
               activityId={''}

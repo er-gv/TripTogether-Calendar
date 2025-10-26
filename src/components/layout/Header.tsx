@@ -25,13 +25,9 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
   };
 
   return (
-    <div className="w-full backdrop-blur shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 py-4 p-8 shadow-2xl">
-          <div className="flex items-center justify-between"
-          style={{ backgroundImage: `url("/assets/header.jpeg")`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-           }}>
+    <header className="w-full backdrop-blur bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 shadow-lg">
+      <div className="max-w-7xl py-3 px-2 mx-auto shadow-2xl">
+        <div className="flex items-center justify-between">
 
             <div className="flex-1">
               {/* Trip Title*/}
@@ -67,7 +63,9 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
             </div>
             
           </div>
-        </div>
-    </div>
+            
+            
+      </div>
+    </header>
   );
 };

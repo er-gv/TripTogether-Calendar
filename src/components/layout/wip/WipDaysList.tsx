@@ -2,10 +2,11 @@ import React from 'react';
 import type { Trip, Activity } from '@/types';
 
 
-const scrollContainerClassName = "p-2 ml-20 mr-20 w-[80%] overflow-x-auto whitespace-nowrap box-border";
-const scrollContentClassName = "inline-flex";
-const enabledItemStyleClassName = "inline-block mr-6 px-2 md:px-3 py-1 font-bold text-[16px] md:text-[16px] rounded-md transform transition-transform duration-200 hover:scale-105 hover:-translate-y-1 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:text-yellow-300 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white`";
-const disabledButtonStyleClassName = "inline-block mr-6 px-2 md:px-3 py-1 font-bold text-[16px] md:text-[16px] rounded-md bg-gray-200 text-gray-500 cursor-not-allowed opacity-70";
+const scrollContainerClassName = "p-2 pl-20 mr-20 w-[80%] overflow-x-auto  whitespace-nowrap box-border";
+const scrollContentClassName = "inline-flex w-[calc(100%/5)]";
+// use inline-flex + flex-col + gap-0 + leading-tight so the three text rows sit closer
+const enabledItemStyleClassName = "inline-flex flex-col items-center gap-0 mr-6 px-2 md:px-3 py-1 font-bold text-[16px] md:text-[16px] rounded-md transform transition-transform duration-200 hover:scale-105 hover:-translate-y-1 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:text-yellow-300 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white leading-tight";
+const disabledButtonStyleClassName = "inline-flex flex-col items-center gap-0 mr-6 px-2 md:px-3 py-1 font-bold text-[16px] md:text-[16px] rounded-md bg-gray-200 text-gray-500 cursor-not-allowed opacity-70 leading-tight";
 
 interface WipDaysListProps {
   trip?: Trip | null;
@@ -14,10 +15,10 @@ interface WipDaysListProps {
 }
 
 export const buildDayObjects = (start?: string, end?: string) => {
-  if (!start || !end) return [] as { date: string; weekday: string; iso: string }[];
+  if (!start || !end) return [] as { weekday: string; monthday:string, date:string, iso: string }[];
   const s = new Date(start);
   const e = new Date(end);
-  if (isNaN(s.getTime()) || isNaN(e.getTime())) return [] as { date: string; weekday: string; iso: string }[];
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return [] as { weekday: string; monthday:string, date:string, iso: string  }[];
 
   let startDate = new Date(s);
   let endDate = new Date(e);
@@ -27,15 +28,19 @@ export const buildDayObjects = (start?: string, end?: string) => {
     endDate = tmp;
   }
 
-  
-  const out: { weekday: string, date: string; iso: string }[] = [];
+  const out: { weekday: string, monthday: string; date: string; iso: string }[] = [];
   const cur = new Date(startDate);
   while (cur.getTime() <= endDate.getTime()) {
     const weekday = cur.toLocaleDateString('en-US', { weekday: 'short' });
-    const dd = String(cur.getDate()).padStart(2, '0');
-    const mm = String(cur.getMonth() + 1).padStart(2, '0');
-    const date = `${dd}/${mm}/${String(cur.getFullYear())}` ;
-    out.push({ weekday: weekday, date: date, iso: new Date(cur).toISOString() });
+    const dd = String(cur.getDate());
+    const mm = String(cur.getMonth() + 1);
+    const date = String(cur.getFullYear()) ;
+    
+    out.push({ 
+      weekday: weekday, 
+      monthday: dd, 
+      date: `${mm}.${date}`, 
+      iso: new Date(cur).toISOString() });
     cur.setDate(cur.getDate() + 1);
   }
   return out;
@@ -54,9 +59,11 @@ export const WipDaysList: React.FC<WipDaysListProps> = ({ trip, activities = [],
   });
 
   return (
-  <div className="p-3  bg-green-400/50 rounded-md ">
-      <div className="pb-2 text-zinc-50 font-bold text-2xl md:text-3xl text-center">list of days in the trip</div>
+    
+  <div className="p-3  bg-white/50">
+      
       <div className={scrollContainerClassName}>
+        
         
           {days.length > 0 && (
           <ul className={scrollContentClassName}>
@@ -74,7 +81,8 @@ export const WipDaysList: React.FC<WipDaysListProps> = ({ trip, activities = [],
                     }}
                     className={enabledItemStyleClassName} >
                   
-                    <div className='text-4xl font-extrabold'>{dayObj.weekday}</div>
+                    <div className='m-0 text-md font-extrabold'>{dayObj.weekday}</div>
+                    <div className='text-3xl font-extrabold'>{dayObj.monthday}</div>
                     <div className='text-md font-extrabold'>{dayObj.date}</div>
 
                   </button>
@@ -88,7 +96,8 @@ export const WipDaysList: React.FC<WipDaysListProps> = ({ trip, activities = [],
                       className= {disabledButtonStyleClassName} 
                       /*"mr-6 px-2 md:px-3 py-1 font-bold text-[16px] md:text-[18px] rounded-md bg-gray-200 text-gray-500 cursor-not-allowed opacity-70"*/
                     >
-                      <div className='text-4xl font-extrabold'>{dayObj.weekday}</div>
+                      <div className='text-md font-extrabold'>{dayObj.weekday}</div>
+                      <div className='text-3xl font-extrabold'>{dayObj.monthday}</div>
                       <div className='text-md font-extrabold'>{dayObj.date}</div>
                     </button>
                   </span>

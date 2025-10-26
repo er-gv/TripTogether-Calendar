@@ -79,7 +79,7 @@ const Authenticate: React.FC<AuthenticateProps> = ({ onSuccess, onCancel, classN
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${className}`}>
+    <div className='min-h-screen flex items-center justify-center p-4'>
       <div className="w-full max-w-md bg-white/95 backdrop-blur rounded-2xl shadow p-6 text-center">
         <h2 className="text-2xl font-bold mb-4">Sign in with Google</h2>
         <p className="text-sm text-gray-600 mb-6">Choose a sign-in method to continue.</p>

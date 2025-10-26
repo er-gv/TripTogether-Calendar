@@ -24,6 +24,9 @@ export default {
         'medium': '1.1rem', // 18px
         'large': '1.16rem', // 18px
         'extra-large': '1.25rem', // 18px
+        // custom 2lg sits between xl and 2xl (~22px)
+        '2lg': ['1.375rem', { lineHeight: '1.75rem' }], // ~22px      
+        '4lg': ['2.75rem', { lineHeight: '3.5rem' }], // ~44px
         '2xl': '1.5rem', // 24px
         '3xl': '1.875rem', // 30px
         '4xl': '2.25rem', // 36px
