@@ -41,7 +41,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     
     return (
     <div className={containerClass} onClick={() => onSelect?.(activity.id)}>
-      <div className="flex gap-4">
+      <div className="flex gap-20">
         <ActivityHeader
           name={activity.name}
           location={activity.location}

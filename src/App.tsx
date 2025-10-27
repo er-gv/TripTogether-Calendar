@@ -13,7 +13,7 @@ import { useActivities } from './hooks/useActivities';
 import { createTrip } from './services/firestore';
 import { auth } from './services/firebase';
 import { Loader, Navigation as NavIcon } from 'lucide-react';
-import { buildDayObjects, WipDaysList } from './components/layout/wip/WipDaysList';
+
 
 
 type View = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
@@ -24,7 +24,7 @@ function App() {
   const { currentTrip, members, loading: tripLoading } = useTrip(currentTripId, user?.id || null);
   const { activities, loading: activitiesLoading, createActivity, deleteActivity, toggleOptIn, editActivity } = useActivities(currentTripId);
   
-  const [view, setView] = useState<View>('dashboard');
+  const [view, setView] = useState<View>('browse');
   const [editingActivityId, setEditingActivityId] = useState<string | null>(null);
   const [filterDate, setFilterDate] = useState('');
   const [filterMember, setFilterMember] = useState('');
