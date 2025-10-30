@@ -42,7 +42,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onBack }) => 
           Back
         </button>
 
-        <div className="bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-8">
+        <div className="bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 backdrop-blur rounded-3xl shadow-2xl p-8">
           <div className="text-center mb-8">
           
             

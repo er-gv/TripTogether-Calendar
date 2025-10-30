@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Trash2, FilePen, Check } from 'lucide-react';
+import { Users, Trash2, FilePen, Check, ChevronDown } from 'lucide-react';
 import type { Activity, User, Trip } from '@/types';
 
 import ActivityHeader from '@/components/activities/ActivityHeader'; 
@@ -39,9 +39,12 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
     
     
-    return (
-    <div className={containerClass} onClick={() => onSelect?.(activity.id)}>
-      <div className="flex gap-20">
+  const [detailsOpen, setDetailsOpen] = React.useState(false);
+  const hasDetails = Boolean(activity.description && activity.description.trim().length > 0);
+
+  return (
+  <div className={containerClass} onClick={() => onSelect?.(activity.id)}>
+      <div className="flex gap-2">
         <ActivityHeader
           name={activity.name}
           location={activity.location}
@@ -52,8 +55,27 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         
       </div>
         
-      <div className="flex gap-4 pt-8">
-       <ActivityContent description={activity.description} tags={activity.tags} />
+      {/* collapsible details section */}
+      <div className="mt-4">
+        <button
+          type="button"
+          aria-expanded={detailsOpen}
+          aria-controls={`activity-details-${activity.id}`}
+          onClick={(e) => { e.stopPropagation(); setDetailsOpen(open => !open); }}
+          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 focus:outline-none"
+        >
+          <ChevronDown className={`w-4 h-4 transition-transform ${detailsOpen ? 'rotate-180' : 'rotate-0'}`} />
+          <span>{detailsOpen ? 'Hide details' : 'Show details'}</span>
+        </button>
+
+        <div
+          id={`activity-details-${activity.id}`}
+          className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${detailsOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}
+        >
+          <div className="flex gap-4 pt-4">
+            <ActivityContent description={activity.description} tags={activity.tags} />
+          </div>
+        </div>
       </div>
       <div className="flex flex-col justify-between ml-auto">
         <ActivityParticipants
@@ -83,26 +105,23 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           )}
         </button>
         {canEdit && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onEditActivity?.(activity.id);  }}
-                  className="p-2 text-emerald-600 hover:bg-blue-50 rounded-lg transition"
-                  title="Edit activity"
-                >
-                  <FilePen size={18} />
-                </button>
-         )}
-         { (
-                <button
-                  onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
-                  title="Delete activity"
-                >
-                  <Trash2 size={18} />
-                </button>
-         )}
+          <button
+            onClick={(e) => { e.stopPropagation(); onEditActivity?.(activity.id); }}
+            className="p-2 text-emerald-600 hover:bg-blue-50 rounded-lg transition"
+            title="Edit activity"
+          >
+            <FilePen size={18} />
+          </button>
+        )}
 
-        
-      </div>      
+        <button
+          onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
+          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+          title="Delete activity"
+        >
+          <Trash2 size={18} />
+        </button>
+      </div>
     </div>
     
   );

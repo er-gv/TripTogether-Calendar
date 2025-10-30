@@ -46,7 +46,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onBack }) => 
               Join a Trip
             </h2>
             <p className="text-gray-600">
-              Enter your trip ID and sign in with Google
+              Sign in with an identity agent <br/>
+              and go to your trip's dashboard
             </p>
           </div>
 
@@ -75,7 +76,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onBack }) => 
 
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-sm text-gray-600 text-center">
-              🔒 We use Google authentication to keep your trip secure
+              🔒 We use required authentication to keep your trip's privacy
             </p>
           </div>
         </div>

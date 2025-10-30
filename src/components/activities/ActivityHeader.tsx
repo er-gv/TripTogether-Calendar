@@ -19,7 +19,7 @@ const ActivityHeader: React.FC<ActivityHeaderProps> = ({ name, location, mapsLin
   // content pane to the right matches that height (h-[60px])
   <div className="flex items-center gap-10">
       {/* Left: thumbnail (180x180) */}
-      <div className="flex-none w-[180px] h-[180px]">
+      <div className="flex-none w-[130px] h-[170px]">
         <img
           src={thumbnailUrl === '' ? '/default_thumbnail.jpg' : thumbnailUrl}
           alt={name}
@@ -27,8 +27,8 @@ const ActivityHeader: React.FC<ActivityHeaderProps> = ({ name, location, mapsLin
         />
       </div>
 
-      {/* Right: content pane matching thumbnail height (180px) */}
-      <div className="flex-1 min-w-0 h-[180px] flex items-top justify-between">
+      {/* Right: content pane matching thumbnail height (140px) */}
+      <div className="flex-1 min-w-0 h-[140px] flex items-top justify-between">
         <div className="min-w-0 overflow-hidden">
           <div className="flex flex-col ">
           <h1 className="font-bold text-xl text-gray-800 truncate">{name}</h1>

@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Loader, LogIn, Apple, Facebook, Mail } from 'lucide-react';
+import { Loader, LogIn, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AuthenticateProps {
@@ -9,7 +10,7 @@ interface AuthenticateProps {
 }
 
 const Authenticate: React.FC<AuthenticateProps> = ({ onSuccess, onCancel, className = '' }) => {
-  const { signInWithGoogle, signInWithFacebook, signInWithApple, signInWithEmail, signUpWithEmail } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -31,29 +32,21 @@ const Authenticate: React.FC<AuthenticateProps> = ({ onSuccess, onCancel, classN
     }
   };
 
-  const handleFacebook = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      await signInWithFacebook();
-      onSuccess?.();
-    } catch (err: any) {
-      console.error('Facebook sign in failed', err);
-      setError('Failed to sign in with Facebook.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleApple = async () => {
+
+  const handleEmail = async () => {
     setError(null);
     setLoading(true);
     try {
-      await signInWithApple();
+      if (isSignup) {
+        await signUpWithEmail(email, password);
+      } else {
+        await signInWithEmail(email, password);
+      }
       onSuccess?.();
     } catch (err: any) {
-      console.error('Apple sign in failed', err);
-      setError('Failed to sign in with Apple.');
+      console.error('Email auth failed', err);
+      setError('Email authentication failed.');
     } finally {
       setLoading(false);
     }
@@ -79,7 +72,12 @@ const Authenticate: React.FC<AuthenticateProps> = ({ onSuccess, onCancel, classN
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center p-4'>
+    <div className='min-h-screen flex items-center justify-center p-4 '
+      style={{ backgroundImage: `url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600")`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+          }}
+    >
       <div className="w-full max-w-md bg-white/95 backdrop-blur rounded-2xl shadow p-6 text-center">
         <h2 className="text-2xl font-bold mb-4">Sign in with Google</h2>
         <p className="text-sm text-gray-600 mb-6">Choose a sign-in method to continue.</p>
@@ -96,23 +94,9 @@ const Authenticate: React.FC<AuthenticateProps> = ({ onSuccess, onCancel, classN
             <span>{loading ? 'Signing in...' : 'Sign in with Google'}</span>
           </button>
 
-          <button
-            onClick={handleFacebook}
-            disabled={loading}
-            className={`w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white ${loading ? 'bg-gray-400 cursor-wait' : 'bg-blue-700 hover:bg-blue-800'}`}
-          >
-            <Facebook size={18} />
-            <span>Sign in with Facebook</span>
-          </button>
+          
 
-          <button
-            onClick={handleApple}
-            disabled={loading}
-            className={`w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white ${loading ? 'bg-gray-400 cursor-wait' : 'bg-gray-900 hover:bg-black'}`}
-          >
-            <Apple size={18} />
-            <span>Sign in with Apple</span>
-          </button>
+          
 
           <button
             onClick={() => { setShowEmailForm(s => !s); setError(null); }}

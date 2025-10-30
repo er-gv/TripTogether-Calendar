@@ -9,7 +9,7 @@ import {
   createUserWithEmailAndPassword
 } from 'firebase/auth';
 
-import { auth, googleProvider, facebookProvider, appleProvider } from '@/services/firebase';
+import { auth, googleProvider } from '@/services/firebase';
 import type{ User } from '@/types';
 import { createOrUpdateUser } from '@/services/firestore';
 
@@ -48,23 +48,7 @@ const useAuth = () => {
     }
   };
 
-  const signInWithFacebook = async () => {
-    try {
-      await signInWithPopup(auth, facebookProvider);
-    } catch (error) {
-      console.error('Error signing in with Facebook:', error);
-      throw error;
-    }
-  };
-
-  const signInWithApple = async () => {
-    try {
-      await signInWithPopup(auth, appleProvider);
-    } catch (error) {
-      console.error('Error signing in with Apple:', error);
-      throw error;
-    }
-  };
+  
 
   const signUpWithEmail = async (email: string, password: string) => {
     try {
@@ -93,7 +77,7 @@ const useAuth = () => {
     }
   };
 
-  return { user, loading, signInWithGoogle, signInWithFacebook, signInWithApple, signUpWithEmail, signInWithEmail, signOut };
+  return { user, loading, signInWithGoogle, signUpWithEmail, signInWithEmail, signOut };
 };
 
 export { useAuth };

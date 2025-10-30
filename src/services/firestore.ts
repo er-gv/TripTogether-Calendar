@@ -118,7 +118,14 @@ export const toggleActivityOptIn = async (activityId: string, userId: string, op
 
 // User Operations
 export const createOrUpdateUser = async (userData: User): Promise<void> => {
-  await setDoc(doc(db, USERS_COLLECTION, userData.id), userData);
+  // Firestore rejects fields with undefined values. Strip any undefined
+  // properties before writing. Use merge:true so we don't accidentally
+  // overwrite existing fields with missing ones.
+  const clean: Partial<User> = {};
+  Object.entries(userData).forEach(([k, v]) => {
+    if (v !== undefined) (clean as any)[k] = v;
+  });
+  await setDoc(doc(db, USERS_COLLECTION, userData.id), clean, { merge: true });
 };
 
 export const getUser = async (userId: string): Promise<User | null> => {

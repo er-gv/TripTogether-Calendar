@@ -8,16 +8,18 @@ import { formatDateTime, toDateTimeLocal } from '@/utils/datetime';
 import RichTextEditor from '@/components/common/RichTextEditor';
 import type { Trip } from '@/types';
 
+interface FormProperties {
+  name: string;
+  description: string;
+  thumbnailUrl: string;
+  mapsLink: string;
+  dateTime: string;
+  location: string;
+  tags: string[];
+}
+
 interface CreateActivityProps {
-  onCreateActivity: (activityData: {
-    name: string;
-    description: string;
-    thumbnailUrl: string;
-    mapsLink: string;
-    dateTime: string;
-    location: string;
-    tags: string[];
-  }) => void | Promise<void>;
+  onCreateActivity: (activityData: FormProperties) => void | Promise<void>;
   onCancel: () => void;
   activeTrip: Trip;
 }
@@ -34,25 +36,30 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
   if (!activeTrip) {
     throw new Error('CreateActivity requires an activeTrip prop (Trip).');
   }
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    thumbnailUrl: '',
+
+  const [formData, setFormData] = useState<FormProperties>({
+    name: activeTrip.name,
+    description: 'Details about this activity. Prices, opening times, videoclip...',
+    thumbnailUrl: '/default_thumbnail.jpg',
     mapsLink: '',
     dateTime: toDateTimeLocal(activeTrip.startDate),
     location: getTripDestination(activeTrip.id),
-    tags: [] as string[],
+    tags: [],
   });
 
+  // Set initial form data only once when the component mounts
   React.useEffect(() => {
-    // When opening the create form, default the datetime to the trip start date
-    setFormData(prev => ({ ...prev, dateTime: toDateTimeLocal(activeTrip.startDate) }));
-  }, [activeTrip.startDate]);
+    console.log('Initial form data setup');
+    setFormData(prevProperties => ({
+      ...prevProperties,
+      dateTime: toDateTimeLocal(activeTrip.startDate)
+    }));
+  }, []); // Empty dependency array means this runs only once on mount
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const toggleTag = (tag: string) => {
-    setFormData(prev => ({
+    setFormData((prev: FormProperties) => ({
       ...prev,
       tags: prev.tags.includes(tag)
         ? prev.tags.filter(t => t !== tag)
@@ -103,8 +110,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (!validate()) return;
 
     const submit = async () => {
@@ -145,7 +151,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           {/* Activity Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -154,7 +160,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) => setFormData((prev: FormProperties) => ({ ...prev, name: e.target.value }))}
               placeholder="e.g., EiffelTower Visit"
               className={`input ${errors.name ? 'border-red-500' : ''}`}
             />
@@ -166,7 +172,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
             <RichTextEditor
               value={formData.description}
-              onChange={(value) => setFormData({ ...formData, description: value })}
+              onChange={(value) => setFormData((prev: FormProperties) => ({ ...prev, description: value }))}
               placeholder="Describe the activity..."
             />
           </div>
@@ -180,8 +186,8 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
             <input
               type="url"
               value={formData.thumbnailUrl}
-              onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
+              onChange={(e) => setFormData((prev: FormProperties) => ({ ...prev, thumbnailUrl: e.target.value }))}
+              placeholder="/default_thumbnail.jpg"
               className={`input ${errors.thumbnailUrl ? 'border-red-500' : ''}`}
             />
             {errors.thumbnailUrl && (
@@ -210,7 +216,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
             <input
               type="datetime-local"
               value={formData.dateTime}
-              onChange={(e) => setFormData({ ...formData, dateTime: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateTime: e.target.value }))}
               className={`input ${errors.dateTime ? 'border-red-500' : ''}`}
             />
             {errors.dateTime && <p className="mt-1 text-sm text-red-500">{errors.dateTime}</p>}
@@ -225,7 +231,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
             <input
               type="text"
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) => setFormData((prev: FormProperties) => ({ ...prev, location: e.target.value }))}
               placeholder="e.g., Champ de Mars, Paris"
               className={`input ${errors.location ? 'border-red-500' : ''}`}
             />
@@ -241,7 +247,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
             <input
               type="url"
               value={formData.mapsLink}
-              onChange={(e) => setFormData({ ...formData, mapsLink: e.target.value })}
+              onChange={(e) => setFormData((prev: FormProperties) => ({ ...prev, mapsLink: e.target.value }))}
               placeholder="https://maps.google.com/?q=..."
               className={`input ${errors.mapsLink ? 'border-red-500' : ''}`}
             />
@@ -277,7 +283,14 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
 
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t">
-            <Button type="submit" variant="success" icon={submitting ? Loader : Plus} className="flex-1" disabled={submitting}>
+            <Button 
+              type="button" 
+              variant="success" 
+              icon={submitting ? Loader : Plus} 
+              className="flex-1" 
+              disabled={submitting}
+              onClick={handleSubmit}
+            >
               {submitting ? 'Creating...' : 'Create Activity'}
             </Button>
             <Button type="button" variant="secondary" onClick={onCancel} className="flex-1">
