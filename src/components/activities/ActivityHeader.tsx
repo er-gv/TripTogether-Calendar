@@ -17,7 +17,7 @@ const ActivityHeader: React.FC<ActivityHeaderProps> = ({ name, location, mapsLin
   return (
   // use a horizontal flex layout where thumbnail is fixed 60x60 and the
   // content pane to the right matches that height (h-[60px])
-  <div className="flex items-center gap-10">
+  <div className="flex items-center gap-10 bg-red-600">
       {/* Left: thumbnail (180x180) */}
       <div className="flex-none w-[130px] h-[170px]">
         <img
