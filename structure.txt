@@ -1,0 +1,40 @@
+trip-together/
+├── src/
+│   ├── components/
+│   │   ├── auth/
+│   │   │   ├── SplashScreen.tsx
+│   │   │   └── LoginScreen.tsx
+│   │   ├── layout/
+│   │   │   ├── Header.tsx
+│   │   │   └── Navigation.tsx
+│   │   ├── dashboard/
+│   │   │   ├── Dashboard.tsx
+│   │   │   └── MyActivityCard.tsx
+│   │   ├── activities/
+│   │   │   ├── ActivityBrowser.tsx
+│   │   │   ├── ActivityFilters.tsx
+│   │   │   ├── CreateActivity.tsx
+│   │   │   ├── ActivityCard.tsx
+│   │   │   └── CreateTripForm.tsx
+│   │   ├── members/
+│   │   │   └── MembersList.tsx
+│   │   └── common/
+│   │       ├── Button.tsx
+│   │       └── Modal.tsx
+│   ├── types/
+│   │   └── index.ts
+│   ├── services/
+│   │   ├── firebase.ts
+│   │   └── firestore.ts
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   ├── useTrip.ts
+│   │   └── useActivities.ts
+│   ├── utils/
+│   │   └── helpers.ts
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
+├── .env
+├── tailwind.config.js
+└── package.json
