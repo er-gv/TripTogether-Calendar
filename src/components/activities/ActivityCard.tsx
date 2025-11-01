@@ -51,6 +51,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           dateTime={activity.dateTime}
           thumbnailUrl={activity.thumbnailUrl}
           mapsLink={activity.mapsLink}
+          tags={activity.tags}
         />
         
       </div>

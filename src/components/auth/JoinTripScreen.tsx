@@ -13,7 +13,7 @@ interface JoinTripScreenProps {
 }
 
 export const JoinTripScreen: React.FC<JoinTripScreenProps> = ({ onSelectTrip, onBack }) => {
-  const { user, loading: authLoading, signInWithGoogle, signInWithApple, signOut } = useAuth();
+  const { user, loading: authLoading, signInWithGoogle, signInWithEmail, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [error, setError] = useState<string | null>(null);
