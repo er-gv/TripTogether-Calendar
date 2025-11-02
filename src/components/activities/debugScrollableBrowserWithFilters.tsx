@@ -2,7 +2,7 @@ import React from 'react';
 import type { Activity, User } from '../../types';
 import ActivityCard from './ActivityCard';
 import { ActivityFilters}  from './ActivityFilters';
-import { Search } from 'lucide-react';
+import { Search, Bug } from 'lucide-react';
 
 interface ActivityDebuggBrowserProps {
   activities: Activity[];
@@ -46,7 +46,7 @@ export const ActivityDebuggBrowser: React.FC<ActivityDebuggBrowserProps> = ({
       <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl">
-            <Search className="text-white" size={24} />
+            <Bug className="text-white" size={24} />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Browse Activities</h2>

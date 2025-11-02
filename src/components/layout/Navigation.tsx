@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Search, Plus, Users } from 'lucide-react';
+import { LayoutDashboard, Search, Plus, Users, Bug } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 import { DaysList }from '@/components/layout/DaysList';
 import type { Trip, Activity } from '@/types';
 
-type NavView = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
+type NavView = 'debug' | 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
 interface NavigationProps {
   currentView: NavView;
@@ -22,6 +22,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChang
     { id: 'dashboard' as const, label: 'My Activities', icon: LayoutDashboard },
     { id: 'browse' as const, label: 'Browse Activities', icon: Search },
     { id: 'members' as const, label: 'Members', icon: Users },
+    { id: 'debug' as const, label: 'Debug', icon: Bug },
   ];
   // days list handled by DaysList component
   return (

@@ -13,10 +13,11 @@ import { useActivities } from './hooks/useActivities';
 import { createTrip } from './services/firestore';
 import { auth } from './services/firebase';
 import { Loader, Navigation as NavIcon } from 'lucide-react';
+import { ActivityDebuggBrowser } from './components/activities/debugScrollableBrowserWithFilters';
 
 
 
-type View = 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
+type View = 'debug' |'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
 function App() {
   const { user, loading: authLoading, signInWithGoogle } = useAuth();
@@ -252,6 +253,28 @@ function App() {
                 onDeleteActivity={handleDeleteActivity}
                 onEditActivity={handleEditActivity}
                 isOwner={isOwner}
+              />
+            </div>
+            
+          </div>
+        )}
+
+         {view === 'debug' && (
+          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
+            <div className="lg:col-span-2">
+              <ActivityDebuggBrowser
+                activities={activities}
+            currentUser={user}
+            members={members}
+            onToggleOptIn={handleToggleOptIn}
+            onDeleteActivity={handleDeleteActivity}
+            isOwner={isOwner}
+            filterDate={filterDate}
+            filterMember={filterMember}
+            filterTags={filterTags}
+            onFilterDateChange={setFilterDate}
+            onFilterMemberChange={setFilterMember}
+            onFilterTagsChange={setFilterTags}
               />
             </div>
             
