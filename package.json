@@ -13,8 +13,9 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.13",
     "dompurify": "^3.2.7",
-    "firebase": "^12.3.0",
+    "firebase": "^12.5.0",
     "firebase-tools": "^14.17.0",
+    "lucide-react": "^0.553.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-lucid": "^0.0.1",

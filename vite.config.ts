@@ -13,5 +13,10 @@ export default defineConfig({
   build: {
     outDir: 'public/build',
     emptyOutDir: false // don't remove entire public folder
+  },
+  server: {
+    watch: {
+      ignored: ['**/.env', '**/.env.*']
+    }
   }
 })
