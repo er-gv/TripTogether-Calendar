@@ -4,6 +4,7 @@ import { MapPin, CalendarDays } from 'lucide-react';
 import ActivityButtons from './ActivityButtons';
 import { formatDateTime } from '@/utils/datetime';
 import ActivityTags from './ActivityTags';
+import compass from '@/assets/compass.png';
 
 interface ActivityHeaderProps {
   name: string;
@@ -24,7 +25,7 @@ const ActivityHeader: React.FC<ActivityHeaderProps> = ({ name, location, mapsLin
       {/* Left: thumbnail (180x180) */}
       <div className="flex-none w-[130px] h-[170px]">
         <img
-          src={thumbnailUrl === '' ? '/default_thumbnail.jpg' : thumbnailUrl}
+          src={thumbnailUrl === '' ? compass : thumbnailUrl}
           alt={name}
           className="w-full h-full object-cover rounded-md shadow-md"
         />

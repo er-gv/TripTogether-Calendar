@@ -4,6 +4,7 @@ import ActivityCard from './ActivityCard';
 import { ActivityFilters}  from './ActivityFilters';
 import { Search, Bug } from 'lucide-react';
 
+
 interface ActivityDebuggBrowserProps {
   activities: Activity[];
   currentUser: User;

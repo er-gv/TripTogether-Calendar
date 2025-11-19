@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { auth } from '@/services/firebase';
 import { getAllTrips } from '@/services/firestore_api/trip';
 import type { Trip } from '@/types';
-import compass from '@/assets/compass.jpg';
+import compass from '@/assets/compass.png';
 
 interface JoinTripScreenProps {
   onSelectTrip: (tripId: string) => void;
@@ -128,8 +128,8 @@ export const JoinTripScreen: React.FC<JoinTripScreenProps> = ({ onSelectTrip, on
                   <div className="flex items-center gap-4">
                     <img src={compass} alt="Compass" className="w-16 h-16 flex-shrink-0" />
                     <div>
-                      <div className="text-lg font-bold mb-1">{trip.name}</div>
-                      <div className="text-sm text-gray-600">{trip.destination} · {new Date(trip.startDate).toLocaleDateString()}</div>
+                      <div className="text-lg font-bold mb-1 text-left">{trip.name}</div>
+                      <div className="text-sm text-gray-600 text-left">{trip.destination} · {new Date(trip.startDate).toLocaleDateString()}</div>
                     </div>
                   </div>
                 </a>

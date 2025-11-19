@@ -4,6 +4,7 @@ import { LoginScreen } from './LoginScreen';
 import JoinTripScreen from './JoinTripScreen';
 import Authenticate from './Authenticate';
 import { CreateTripForm } from '../activities/CreateTripForm'
+import compass from '@/assets/compass.png';
 
 import type { User } from '@/types';
 
@@ -72,7 +73,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
         {/* Logo & Title */}
         <div className="text-center mb-12 group bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-3xl p-8 shadow-2xl   ">
           <div className="inline-flex items-center justify-center w-20 h-20  rounded-full ">
-            <img src="/compass.png" alt="TripTogether Logo"  />
+            <img src={compass} alt="TripTogether Logo"  />
             
           
           <h1 className="text-6xl font-bold text-white drop-shadow-lg mb-2">

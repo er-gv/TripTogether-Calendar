@@ -4,6 +4,7 @@ import App from './App';
 import './index.css';
 
 
+
 // Call the function to add your tags when the app starts
 //addTagsToFirestore();
 ReactDOM.createRoot(document.getElementById('root')!).render(
