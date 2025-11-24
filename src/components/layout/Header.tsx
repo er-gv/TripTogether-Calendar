@@ -25,11 +25,11 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
   };
 
   return (
-    <header className="w-full backdrop-blur bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 shadow-lg">
-      <div className="max-w-7xl py-3 px-2 mx-auto shadow-2xl">
+    <header className="w-full backdrop-blur  ">
+      <div className=" px-5 pb-3 mx-auto ">
         <div className="flex items-center justify-between">
 
-            <div className="flex-1">
+            <div className="flex-1 text-left">
               {/* Trip Title*/}
               <h1 className="text-2xl md:text-3xl font-bold text-zinc-50">
                 {trip.name}
@@ -50,15 +50,17 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-lg">
+              <div className="hidden md:flex items-center gap-2 px-1 py-2 bg-purple-50 rounded-lg">
                 <img
                   src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName)}`}
                   alt={user.displayName}
                   className="w-8 h-8 rounded-full"
                 />
-                <span className="text-sm font-medium text-gray-700">{user.displayName}</span>
+                <span className="text-sm font-medium text-gray-700 px-2 py-3">{user.displayName}</span>
               </div>
-              <LogoutButton onLogout={onLogout} />
+              
+                <LogoutButton onLogout={onLogout} />
+              
               
             </div>
             

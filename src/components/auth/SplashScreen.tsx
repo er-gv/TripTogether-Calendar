@@ -5,6 +5,7 @@ import JoinTripScreen from './JoinTripScreen';
 import Authenticate from './Authenticate';
 import { CreateTripForm } from '../activities/CreateTripForm'
 import compass from '@/assets/compass.png';
+import type { AuthMode } from '@/types';
 
 import type { User } from '@/types';
 
@@ -15,40 +16,40 @@ interface SplashScreenProps {
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTrip, currentUser }) => {
-  const [mode, setMode] = useState<'splash' | 'login' | 'create' | 'join' | 'auth-create' | 'auth-join'>('splash');
+const [authMode, setAuthMode] = useState<AuthMode | null>(null);
 
-  if (mode === 'login') {
-    return <LoginScreen onLogin={onLogin} onBack={() => setMode('splash')} />;
+  if (authMode === 'login') {
+    return <LoginScreen onLogin={onLogin} onBack={() => setAuthMode('splash')} />;
   }
 
-  if (mode === 'auth-join') {
+  if (authMode === 'auth-join') {
     return (
       <Authenticate
-        onSuccess={() => setMode('join')}
-        onCancel={() => setMode('splash')}
+        onSuccess={() => setAuthMode('join_trip')}
+        onCancel={() => setAuthMode(null)}
       />
     );
   }
 
-  if (mode === 'join') {
-    return <JoinTripScreen onSelectTrip={onLogin} onBack={() => setMode('splash')} />;
+  if (authMode === 'join_trip') {
+    return <JoinTripScreen onSelectTrip={onLogin} onBack={() => setAuthMode(null)} />;
   }
 
-  if (mode === 'auth-create') {
+  if (authMode === 'auth-create') {
     return (
       <Authenticate
-        onSuccess={() => setMode('create')}
-        onCancel={() => setMode('splash')}
+        onSuccess={() => setAuthMode('create_trip')}
+        onCancel={() => setAuthMode(null)}
       />
     );
   }
 
-  if (mode === 'create') {
+  if (authMode === 'create_trip') {
     return (
       <CreateTripForm 
         currentUser={currentUser}
         onCreateTrip={onCreateTrip}
-        onBack={() => setMode('splash')}
+        onBack={() => setAuthMode(null)}
       />
     );
   }
@@ -87,7 +88,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
             <div className="grid md:grid-cols-2 gap-2 pt-10">
           {/* Join Existing Trip */}
           <button
-            onClick={() => setMode('auth-join')}
+            onClick={() => setAuthMode('auth-join')}
             
           >
             <div className="flex flex-col items-center text-center">
@@ -107,7 +108,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onLogin, onCreateTri
           <button
             
           
-            onClick={() => setMode('auth-create')}
+            onClick={() => setAuthMode('auth-create')}
             
           >
             <div className="flex flex-col items-center text-center">

@@ -5,11 +5,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { DaysList }from '@/components/layout/DaysList';
 import type { Trip, Activity } from '@/types';
 
-type NavView = 'debug' | 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
+import type { ViewMode } from '@/types';
+//type NavView = 'debug' | 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
 interface NavigationProps {
-  currentView: NavView;
-  onViewChange: (view: NavView) => void;
+  currentView: ViewMode;
+  onViewChange: (view: ViewMode) => void;
   trip?: Trip | null;
   activities?: Activity[];
   onDayClick?: (iso: string) => void;
@@ -19,10 +20,10 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChang
   const { user } = useAuth();
 
   const navItems = [
-    { id: 'dashboard' as const, label: 'My Activities', icon: LayoutDashboard },
-    { id: 'browse' as const, label: 'Browse Activities', icon: Search },
-    { id: 'members' as const, label: 'Members', icon: Users },
-    { id: 'debug' as const, label: 'Debug', icon: Bug },
+    { id: 'memberActivities', label: 'My Activities', icon: LayoutDashboard },
+    { id: 'allActivities', label: 'Browse Activities', icon: Search },
+    { id: 'membersList', label: 'Members', icon: Users },
+    { id: 'debug', label: 'Debug', icon: Bug },
   ];
   // days list handled by DaysList component
   return (
@@ -30,20 +31,20 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChang
       
         <div className="max-w-7xl mx-auto ">
           
-          <div className="flex gap-2 flex-nowrap items-center overflow-x-auto md:overflow-visible md:flex-wrap md:gap-2 pb-3 md:pb-3 ">
+          <div className="flex gap-2 flex-nowrap items-center md:flex-wrap md:gap-2 pb-3 md:pb-3 ">
             {navItems.map(item => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
-                  onClick={() => onViewChange(item.id)}
+                  onClick={() => onViewChange(item.id as ViewMode)}
                   className={`px-4 py-2 md:px-6 rounded-lg font-medium transition flex items-center gap-2 ${
                     currentView === item.id
                       ? 'bg-gray-300 text-purple-600 bold shadow-lg'
                       : 'bg-gray-300 text-gray-700 hover:bg-white'
                   }`}
                 >
-                  {item.id === 'dashboard' && user?.photoURL ? (
+                  {item.id === 'memberActivities' && user?.photoURL ? (
                     <img src={user.photoURL} alt={user.displayName || 'Me'} className="w-5 h-5 rounded-full object-cover" />
                   ) : (
                     <Icon size={18} />
@@ -61,15 +62,12 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChang
               <span className="hidden sm:inline">Create Activity</span>
             </button>
           </div>
-          {/* Days list component */}
+          {/* Days list component 
           <DaysList trip={trip} activities={activities} onDayClick={onDayClick} />
+          */}
         </div>
       
 
-  {/* spacer so content starts below the fixed navigation (increased to match new nav position) */}
-  <div className="h-48 md:h-56" aria-hidden="true" />
-  <div className="h-6" aria-hidden="true" />
-  {/* No modal — clicking emits scrollToDay events */}
     </>
   );
 };

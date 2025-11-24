@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export interface User {
   id: string;
   email: string;
@@ -65,7 +67,9 @@ export interface TripContextType {
   leaveTrip: () => void;
 }
 
-
+export type ViewMode = 'allActivities' | 'memberActivities' | 'filterMembers' | 'membersList' | 'settings' | 'create' | 'edit';
+//export type AuthMode = 'login' | 'signup' | 'splash' | 'join' | 'createTrip';
+export type AuthMode = 'splash' | 'login' | 'signup' | 'create_trip' | 'join_trip' | 'auth-create' | 'auth-join';
 
 export const AVAILABLE_TAGS = [
   'sightseeing',
