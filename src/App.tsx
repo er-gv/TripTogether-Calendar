@@ -3,9 +3,8 @@ import './App.css';
 import { SplashScreen } from './components/auth/SplashScreen';
 import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
-//import ActivitiesScroller from './components/dashboard/ActivitiesScroller';
-//import { ActivityBrowser } from './components/activities/ActivityBrowser';
-import {ActivityDebuggBrowser} from './components/activities/DebugScrollableBrowserWithFilters';
+import { ActivitiesBrowser } from './components/layout/ActivitiesBrowser';
+import { MyActivities } from './components/layout/MyActivities';
 import { CreateActivity } from './components/activities/CreateActivity';
 import { EditActivity } from './components/activities/EditActivity';
 import { MembersList } from './components/members/MembersList';
@@ -18,15 +17,25 @@ import { Loader, Navigation as NavIcon } from 'lucide-react';
 import type { ViewMode, AuthMode } from './types';
 
 
-
-
 function App() {
   
-  const [view, setView] = useState<ViewMode>('membersList');
+  const [view, setView] = useState<ViewMode>('memberActivities');
   const [authView, setAuthView] = useState<AuthMode>('splash');
   const [editingActivityId, setEditingActivityId] = useState<string | null>(null);
   const [currentTripId, setCurrentTripId] = useState<string | null>(null);
-  const [filteredUserId, setFilteredUserId] = useState<string | null>(null);
+  const [filterDate, setFilterDate] = useState('');
+  const [filterTags, setFilterTags] = useState<string[]>([]);
+  const [filterOptInMembers, setFilterOptInMembers] = useState<string[]>([]);
+  const [filterCreatorMember, setFilterCreatorMember] = useState('');
+  
+  
+  
+  //state filters that govern whitch activities are shown in the ActivitiesBrowser
+  //const [filterDate, setFilterDate] = useState('');
+  //const [filterMember, setFilterMember] = useState('');
+  //const [filterTags, setFilterTags] = useState<string[]>([]);
+  //const [selectedActivityId, setSelectedActivityId] = React.useState<string | null>(null);
+  
 
   const { user, loading: authLoading, signInWithGoogle } = useAuth();
   const { currentTrip, members, loading: tripLoading } = useTrip(currentTripId, user?.id || null);
@@ -157,22 +166,28 @@ function App() {
 
   // Scroll to the first activity that falls on the given ISO day string (YYYY-MM-DDT...)
   const scrollToDay = (iso: string) => {
+    console.log("scrollToDay called with iso:", iso);
     try {
       const targetDate = new Date(iso);
       const targetDayKey = targetDate.toISOString().slice(0, 10);
-
+      console.log("targetDayKey:", targetDayKey);
       // Find the DOM element that Dashboard attaches with data-day
       const el = document.querySelector(`[data-day="${targetDayKey}"]`);
+
       if (el) {
+        console.log("Found element:", el);  
         // Compute header/nav offset dynamically if possible
         const headerEl = document.querySelector('header');
         const navEl = document.querySelector('[data-nav]');
+        console.log("headerEl:", headerEl, "navEl:", navEl);
+        console.log("header height:", headerEl ? (headerEl as HTMLElement).offsetHeight : "none", "nav height:", navEl ? (navEl as HTMLElement).offsetHeight : "none");
         let offset = 120;
         if (headerEl) offset = offset - 0 + (headerEl as HTMLElement).offsetHeight;
         if (navEl) offset += (navEl as HTMLElement).offsetHeight;
 
         const rect = (el as HTMLElement).getBoundingClientRect();
         const top = window.scrollY + rect.top - offset;
+        console.log("Scrolling to top position:", top);
         window.scrollTo({ top, behavior: 'smooth' });
         try {
           const node = el as HTMLElement;
@@ -187,16 +202,19 @@ function App() {
           };
           node.addEventListener('animationend', handle);
         } catch (err) {
-          // ignore
+          console.error("Error in scrollToDay animation handling:", err);
         }
       }
+      else {
+        console.log("No element found for day key:", targetDayKey);
+      }
     } catch (err) {
-      // ignore
+      console.error("Error in scrollToDay:", err);
     }
   };
 
-  const toggleActivitiesListForFilteredUser = (userId: string) => {
-    setFilteredUserId(userId);
+  const toggleActivitiesListForFilteredUser = (userName: string) => {
+    //setFilterMember(userName);
     setView('memberActivities');
   };
 
@@ -207,39 +225,39 @@ function App() {
  */
   return (
 
-    <article className=" w-full h-[800px] rounded-lg ">
+    <article className="w-full h-[800px] rounded-lg">
       
-      {/* Header (sticky inside the container) */}
-      <section className="backdrop-blur bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 ">
-      <Header trip={currentTrip} user={user} memberCount={members.length} onLogout={handleLogout} />
+      {/* Fixed top bar containing Header and Navigation with shared gradient background */}
+      <div className="fixed top-0 left-0 right-0 z-20 w-full backdrop-blur bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
+        <header>
+          <Header trip={currentTrip} user={user} memberCount={members.length} onLogout={handleLogout} />
+        </header>
+        <nav className="flex gap-6 px-4 items-center">
+          <Navigation
+            currentView={view}
+            activities={activities}
+            trip={currentTrip}
+            onViewChange={setView}          
+            onSetFilterMember={toggleActivitiesListForFilteredUser}
+          /> 
+        </nav>
+      </div>
       
-                    
-      {/* Main Content */}
-      {/*<div className="h-full">*/}
-      {/* This is the scroll container. Sticky children will stick inside it. */}
-      
-      
-      <nav className="sticky z-10 flex gap-6 items-center ">
-        <Navigation
-          currentView={view}
-          onViewChange={setView}
-          activities={activities}
-          trip={currentTrip}
-          onDayClick={scrollToDay}
-        /> 
-      </nav>
-      </section>
-      {/*
-      <section className=" w-full h-[800px] shadow-lg"
+      {/* Main Content with top padding to account for fixed header */}
+      <main className="pt-32 p-4 space-y-4">
+      <div className="h-full">
+  
+      <section className=" w-full h-[1600px] shadow-lg"
             style={{ backgroundImage: `url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600")`,
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center'
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'repeat-y'
           }}>
-      <div className="h-full overflow-auto">
-      <main className="p-4 space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_3fr_3fr_1fr] gap-6 max-w-7xl mx-auto px-4 pb-8">
+            <div className="lg:col-start-2 lg:col-span-2">
+      
+      
         
-      
-      
         {view === 'membersList' && (
           <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
             <div className="lg:col-span-2">
@@ -248,53 +266,53 @@ function App() {
                 members={members}
                 ownerId={currentTrip.ownerId}
                 currentUserId={user.id}
-                onShowOptInActivities={toggleActivitiesListForFilteredUser}
+                onSetFilterMember={setFilterCreatorMember}
+
               />
             </div>
           </div>
         )}
-
+        
         {view === 'memberActivities' && (
-          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
-            <div className="lg:col-span-2">
-              <ActivityDebuggBrowser
+          
+              <MyActivities
                 trip={currentTrip}
-                currentUser={user}
-                filteredUserId={filteredUserId}
-                members={members}
                 activities={activities}
-                onToggleOptIn={handleToggleOptIn}
-                onDeleteActivity={handleDeleteActivity}
-                isOwner={isOwner}
-                view={view}
-              />
-            </div>
-            
-          </div>)}
-
-         {view === 'allActivities' && (
-          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
-            <div className="lg:col-span-2">
-              <ActivityDebuggBrowser
-                trip={currentTrip}
                 currentUser={user}
-                members={members}
-                activities={activities}
-                onToggleOptIn={handleToggleOptIn}
-                onDeleteActivity={handleDeleteActivity}
                 isOwner={isOwner}
-                view={view}
+                onToggleOptIn={handleToggleOptIn}                
+                onEditActivity={handleEditActivity}
+                onDeleteActivity={handleDeleteActivity}
+                onDayClicked={scrollToDay}
+                
               />
-            </div>
             
-          </div>
         )}
-    
-       
+
+        
+        {/* Show all activities browser 
+        {view === 'allActivities' && (
+          <ActivityBrowser
+            activities={activities}
+            currentUser={user}
+            members={members}
+            onToggleOptIn={handleToggleOptIn}
+            onDeleteActivity={handleDeleteActivity}
+            isOwner={isOwner}
+            onFilterDate={filterDate}
+            onFilterMember={filterCreatorMember}
+            onSetFilterOptInMembers={setFilterOptInMembers}
+            filterTags={filterTags}
+            onFilterDateChange={setFilterDate}
+            onFilterTagsChange={setFilterTags}
+          />
+        )}
+        */}
+
         {view === 'create' && (
           <CreateActivity
             onCreateActivity={handleCreateActivity}
-            onCancel={() => setView('allActivities')}
+            onCancel={() => setView('memberActivities')}
             activeTrip={currentTrip}
           />
         )}
@@ -302,15 +320,18 @@ function App() {
           <EditActivity
             activity={activities.find(a => a.id === editingActivityId)!}
             onEditActivity={handleSaveEditedActivity}
-            onCancel={() => { setView('allActivities'); setEditingActivityId(null); }}
+            onCancel={() => { setView('memberActivities'); setEditingActivityId(null); }}
             activeTrip={currentTrip}
           />
         )}
-            
+            {/* repeat sections to create scrollable content */}
+                </div>
+          </div>
+                </section>
+                </div>
           </main>
-      </div>
-      </section>
-      </div>*/}
+      
+
     </article>
   );
 };

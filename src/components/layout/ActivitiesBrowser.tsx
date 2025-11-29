@@ -1,66 +1,70 @@
 import React from 'react';
 import { useState } from 'react';
 import type { Activity, Trip, User } from '../../types';
-import ActivityCard from './ActivityCard';
-import { ActivityFilters}  from './ActivityFilters';
-import { Search, Bug, Calendar } from 'lucide-react';
-import { FiltersPane } from '../layout/FiltersPane';
-import { DaysList } from '../layout/DaysList';
+import ActivityCard from '../activities/ActivityCard';
+import { ActivityFilters}  from '../activities/ActivityFilters';
+import { Search, Bug, Calendar, CalendarPlus } from 'lucide-react';
+import { FiltersPane } from './FiltersPane';
+import { DaysList } from './DaysList';
 import { generateTripId } from '@/utils/helpers';
 import type { ViewMode } from '@/types';
+import { exportEventToICS, exportUserItineraryToICS } from '@/utils/helpers';
+
+
 
 
 interface ActivityDebuggBrowserProps {
-  trip: Trip;
+  /*trip: Trip;
   activities: Activity[];
   currentUser: User;
-  filteredUserId?: string | null;
+  filterMember: string;
   members: User[];
+  filterDate: string;
+  filterTags: string[];
+  filterOptInMembers: string[];
+  filterCreatorMember: string;
+
   
   onToggleOptIn: (activityId: string, optIn: boolean) => void;
+  
+  onSetFilterDate: (date: string) => void;
+  onSetFilterMember: (member: string) => void;
+  onSetFilterTags: (tags: string[]) => void;
   onDeleteActivity: (activityId: string) => void;
+  onEditActivity: (activityId: string) => void;
   isOwner: boolean;
-  view: ViewMode;
+  view: ViewMode;*/
 }
 
 
-export const ActivityDebuggBrowser: React.FC<ActivityDebuggBrowserProps> = ({
-  trip,
+export const ActivitiesBrowser: React.FC<ActivityDebuggBrowserProps> = ({
+  /*trip,
   activities,
   currentUser,
-  filteredUserId,
+  filterMember,
   members,
   onToggleOptIn,
+  filterDate,
+  filterTags,
+  filterOptInMembers,
+  filterCreatorMember,
+  
+  onSetFilterDate,
+  onSetFilterMember,
+  onSetFilterTags,
+    
   onDeleteActivity,
   isOwner,
-  view
+  view*/
 }) => {
-  const [filterDate, setFilterDate] = useState('');
-  const [filterMember, setFilterMember] = useState('');
-  const [filterTags, setFilterTags] = useState<string[]>([]);
-  const [selectedActivityId, setSelectedActivityId] = React.useState<string | null>(null);
-  const [filteredUserName, setFilteredUserName] = React.useState<string>('');
-
-  React.useEffect(() => {
-    if (view === 'memberActivities'  && filteredUserId) {
-      const user = members.find(m => m.id === filteredUserId);
-      if (user){
-        setFilteredUserName(user.displayName);
-        setFilterMember(filteredUserId);
-      } 
-      else {
-        setFilteredUserName(currentUser.displayName);
-        setFilterMember(currentUser.id);
-      }
-    }
-  }, [filteredUserId, members]);
-
-  const caption = view === 'memberActivities' 
-    ? `Activities by ${filteredUserId ? filteredUserName : currentUser.displayName}`
-    : 'Browse All Activities';
-
+  
 
   
+  /*
+  const caption = view === 'allActivities' ? 
+    (filterMember ? `Browse Activities created by ${filterMember}` : `Browse All Activities `)
+    : `${currentUser.displayName} selected Activities`;
+ 
   const filteredActivities = activities.filter(act => {  
     if (filterDate && !act.dateTime.startsWith(filterDate)) return false;
     if (filterMember && act.creatorId !== filterMember) return false;
@@ -107,9 +111,10 @@ export const ActivityDebuggBrowser: React.FC<ActivityDebuggBrowserProps> = ({
     }
   };
   
-  
+  */
   return (
-    <div className="flex gap-2 flex-nowrap items-center max-w-7xl mx-auto px-4 pb-8">
+    <div>TODO: Activities Browser</div>
+    /*<div className="flex gap-2 flex-nowrap items-center max-w-7xl mx-auto px-4 pb-8">
       <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl">
@@ -118,10 +123,16 @@ export const ActivityDebuggBrowser: React.FC<ActivityDebuggBrowserProps> = ({
             : (<Search className="text-white" size={24} />) 
             
             }
+            {view === 'memberActivities' &&(
+              <button onClick={() => {exportOptInEventsToICS(currentUser.id, currentUser.displayName);}}>Export your schedule
+                <CalendarPlus className="text-white" size={24} /> 
+              </button>
+            )
+            }
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-800">{caption}</h2>
-            {/* make the count area its own scrollable pane in case content expands */}
+            {/* make the count area its own scrollable pane in case content expands *
             <div className="max-h-52 overflow-auto">
               <DaysList trip={trip} activities={activities} onDayClick={setFilterDate} />
               
@@ -163,6 +174,7 @@ export const ActivityDebuggBrowser: React.FC<ActivityDebuggBrowserProps> = ({
                 activity={activity}
                 currentUser={currentUser}
                 onToggleOptIn={onToggleOptIn}
+                onExportToCalendar={exportEventToICS}
                 onDeleteActivity={onDeleteActivity}
                 canDelete ={activity.creatorId === currentUser.id || isOwner}
                 canEdit={activity.creatorId === currentUser.id || isOwner}
@@ -173,6 +185,6 @@ export const ActivityDebuggBrowser: React.FC<ActivityDebuggBrowserProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>*/
   );
 };

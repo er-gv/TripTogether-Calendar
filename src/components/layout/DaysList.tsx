@@ -1,5 +1,7 @@
 import React from 'react';
-import type { Trip, Activity } from '@/types';
+import type { Trip, Activity, User } from '@/types';
+import { exportUserItineraryToICS } from '@/utils/helpers';
+import { CalendarPlus } from 'lucide-react';
 
 
 const scrollContainerClassName = "p-2 pl-20 mr-20 w-[80%] overflow-x-auto  whitespace-nowrap box-border";
@@ -10,8 +12,9 @@ const disabledButtonStyleClassName = "inline-flex flex-col items-center gap-0 mr
 
 interface DaysListProps {
   trip?: Trip | null;
-  activities?: Activity[];
-  onDayClick?: (iso: string) => void;
+  currentUser?: User|null;
+  activities: Activity[];
+  onDayClicked: (iso: string) => void;
 }
 
 export const buildDayObjects = (start?: string, end?: string) => {
@@ -47,13 +50,12 @@ export const buildDayObjects = (start?: string, end?: string) => {
 };
 
 
-
-export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], onDayClick }) => {
+export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], currentUser, onDayClicked }) => {
   const days = buildDayObjects(trip?.startDate, trip?.endDate);
 
   const activeDayKeys = new Set<string>();
   activities.forEach((act) => {
-    if (!act.dateTime) return;
+    if (!act.dateTime || !currentUser || !act.optedInUsers.find(id => id === currentUser.id)) return;
     const key = new Date(act.dateTime).toISOString().slice(0, 10);
     activeDayKeys.add(key);
   });
@@ -65,7 +67,15 @@ export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], onDay
       <div className={scrollContainerClassName}>
         
         
-          {days.length > 0 && (
+          {days.length > 0 && currentUser && (<>
+          <div className="">
+            
+            <button className="flex items-center hover:bg-blue-50 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-emerald-600 px-3 py-2 rounded"
+                onClick={() => exportUserItineraryToICS(currentUser.id, currentUser.displayName)}>
+                <CalendarPlus size={36} className="mr-2" /> 
+                <h2 className='text-left text-2xl text-bold'>Export Your planned itinerary to calendar</h2>
+            </button>
+        </div>  
           <ul className={scrollContentClassName}>
             {days.map((dayObj, idx) => {
               const dayKey = new Date(dayObj.iso).toISOString().slice(0, 10);
@@ -77,7 +87,12 @@ export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], onDay
                     type="button"
                     
                     onClick={() => {
-                      if (onDayClick) onDayClick(dayObj.iso);
+                      if (onDayClicked) {
+                        console.log("clicking day:", dayObj.iso); 
+                        onDayClicked(dayObj.iso);
+                      }else {
+                        console.log("no onDayClicked handler");
+                      }
                     }}
                     className={enabledItemStyleClassName} >
                   
@@ -106,6 +121,7 @@ export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], onDay
             );
           })}
         </ul>
+        </>
         )}
         
       </div>

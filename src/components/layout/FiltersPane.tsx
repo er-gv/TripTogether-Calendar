@@ -1,42 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Filter, X } from 'lucide-react';
 import type { User } from '../../types';
 import {AVAILABLE_TAGS } from '../../types';
 
+
 interface FiltersPaneProps {
-  filterDate: string;
-  filterMember: string;
-  filterTags: string[];
   members: User[];
-  onFilterDateChange: (date: string) => void;
-  onFilterMemberChange: (memberId: string) => void;
-  onFilterTagsChange: (tags: string[]) => void;
+  filterDate: string;
+  onSetFilterDate: (date: string) => void;
+    
+  creator: string;
+  onSetFilterCreatorMember: (memberId: string) => void; 
+  
+  filterTags: string[];
+  onSetFilterTags: (tags: string[]) => void;
+  
+  optInMembers: string[];
+  onSetFilterOptInMembers: (memberIds: string[]) => void;
 }
 
 export const FiltersPane: React.FC<FiltersPaneProps> = ({
-  filterDate,
-  filterMember,
-  filterTags,
   members,
-  onFilterDateChange,
-  onFilterMemberChange,
-  onFilterTagsChange,
+  creator,
+  filterDate,
+  optInMembers,
+  filterTags,
+  onSetFilterDate,
+  onSetFilterCreatorMember,
+  onSetFilterTags,
+  onSetFilterOptInMembers,
 }) => {
+
+  //initialize local filter states, each may be null or empty.
+  onSetFilterDate(filterDate);
+  onSetFilterCreatorMember(creator);
+  
+  
   const toggleTag = (tag: string) => {
     if (filterTags.includes(tag)) {
-      onFilterTagsChange(filterTags.filter(t => t !== tag));
+      setFilterTags(filterTags.filter(t => t !== tag));
     } else {
-      onFilterTagsChange([...filterTags, tag]);
+      setFilterTags([...filterTags, tag]);
+    }
+  };
+
+  const toggleOptInMember = (memberId: string) => {
+    if (filterOptInMembers.includes(memberId)) {
+      setFilterOptInMembers(filterOptInMembers.filter(id => id !== memberId));
+    } else {
+      setFilterOptInMembers([...filterOptInMembers, memberId]);
     }
   };
 
   const clearAllFilters = () => {
-    onFilterDateChange('');
-    onFilterMemberChange('');
-    onFilterTagsChange([]);
+    setFilterDate('');
+    setFilterCreatorMember('');
+    setFilterOptInMembers([]);
+    setFilterTags([]);
   };
 
-  const hasActiveFilters = filterDate || filterMember || filterTags.length > 0;
+
+  const hasActiveFilters = filterDate || filterCreatorMember || filterOptInMembers.length > 0 || filterTags.length > 0;
 
   return (
     <div className="border-2 border-gray-200 rounded-xl p-4 bg-gray-50">
@@ -76,8 +100,8 @@ export const FiltersPane: React.FC<FiltersPaneProps> = ({
             Filter by Creator
           </label>
           <select
-            value={filterMember}
-            onChange={(e) => onFilterMemberChange(e.target.value)}
+            value={filterCreatorMember}
+            onChange={(e) => setFilterCreatorMember(e.target.value)}
             className="input"
           >
             <option value="">All members</option>

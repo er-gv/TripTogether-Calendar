@@ -8,10 +8,10 @@ interface MembersListProps {
   ownerId: string;
   currentUserId: string;
   //onShowCreatedActivities?: (memberId: string) => void;
-  onShowOptInActivities: (memberId: string) => void;
+  onSetFilterMember: (memberName: string) => void;
 };
 
-export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, currentUserId, onShowOptInActivities }) => {
+export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, currentUserId, onSetFilterMember }) => {
   const [showInvite, setShowInvite] = React.useState(false);
 
   // Place the current user at the top of the list if present
@@ -25,7 +25,8 @@ export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, curr
   // Insert placeholder after the first row (position 3) or at the end if fewer members
   
   return (
-  <div className="mx-auto max-w-3xl bg-white rounded-xl shadow-md pt-10 px-8 pb-8">
+  <div className="max-w-3xl bg-white rounded-xl shadow-md pt-10 px-8 pb-8">
+  
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Users size={20} className="text-purple-600" />
@@ -61,7 +62,7 @@ export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, curr
                     <div className="flex items-center gap-1 mt-2">
                         <a
                           href="#"
-                          onClick={(e) => { e.preventDefault(); onShowOptInActivities(member.id); }}
+                          onClick={(e) => { e.preventDefault(); onSetFilterMember(member.displayName); }}
                           className="text-sm text-purple-600 hover:text-purple-800 hover:underline inline-flex items-center gap-1"
                         >
                           <span>See schedule events</span>

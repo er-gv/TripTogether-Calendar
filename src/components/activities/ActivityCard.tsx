@@ -1,10 +1,10 @@
 import React from 'react';
-import { Users, Trash2, FilePen, Check, ChevronDown } from 'lucide-react';
+import { Users, Trash2, FilePen, Check, ChevronDown, CalendarPlus } from 'lucide-react';
 import type { Activity, User, Trip } from '@/types';
 
 import ActivityHeader from '@/components/activities/ActivityHeader'; 
 import { ActivityParticipants } from '@/components/activities/ActivityParticipants'; 
-
+import { exportEventToICS } from '@/utils/helpers';
 import ActivityContent from './ActivityContent';
 
   
@@ -17,8 +17,9 @@ interface ActivityCardProps {
   onEditActivity?: (activityId: string) => void;
   canEdit: boolean;
   canDelete: boolean;
-  isActive?: boolean;
-  onSelect?: (activityId: string) => void;
+  canExport: boolean;
+  isActive: boolean;
+  onSelect: (activityId: string) => void;
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
@@ -26,6 +27,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   currentUser,
   canEdit,
   canDelete,
+  canExport,
   isActive,
   onToggleOptIn,
   onDeleteActivity,
@@ -105,6 +107,22 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             </>
           )}
         </button>
+
+        {isOptedIn && canExport && (<button
+          onClick={(e) => { e.stopPropagation(); 
+            exportEventToICS({
+              id: activity.id,
+              name: activity.name,
+              description: activity.description,
+              dateTime: activity.dateTime,
+              location: activity.location
+            }); }}
+            className="p-2 text-emerald-600 hover:bg-blue-50 rounded-lg transition"
+            title="Export to calendar"
+          >
+            <CalendarPlus size={18} />
+          </button>
+        )}
         {canEdit && (
           <button
             onClick={(e) => { e.stopPropagation(); onEditActivity?.(activity.id); }}
@@ -115,13 +133,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           </button>
         )}
 
-        <button
-          onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
-          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
-          title="Delete activity"
-        >
+        {canDelete && (<button
+            onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
+            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+            title="Delete activity"
+          >
           <Trash2 size={18} />
-        </button>
+          </button>
+        )}
       </div>
     </div>
     

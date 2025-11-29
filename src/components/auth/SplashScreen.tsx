@@ -55,17 +55,18 @@ const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 "></div>
       
       {/* Background Image Overlay */}
       <div 
-        className="absolute inset-0 "
+        className="absolute inset-0 w-full h-full"
         style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          backgroundRepeat: 'repeat-x',
         }}
       ></div>
 

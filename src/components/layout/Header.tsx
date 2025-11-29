@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
   };
 
   return (
-    <header className="w-full backdrop-blur  ">
+    <>
       <div className=" px-5 pb-3 mx-auto ">
         <div className="flex items-center justify-between">
 
@@ -68,6 +68,6 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
             
             
       </div>
-    </header>
+    </>
   );
 };
