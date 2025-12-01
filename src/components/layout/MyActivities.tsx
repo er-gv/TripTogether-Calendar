@@ -125,29 +125,3 @@ export const MyActivities: React.FC<MyActivitiesProps> = ({
         </section>
     </>);
 };
-
-/*
-<EventsContainer
-            items={activities.filter(act => act.optedInUsers.includes(currentUser.id))}
-            renderItem={(activity) => (
-                <ActivityCard
-                    activity={activity}
-                    currentUser={currentUser}
-                    onToggleOptIn={onToggleOptIn}
-                    onEditActivity={onEditActivity}
-                    onDeleteActivity={onDeleteActivity}
-                    canEdit={true}
-                    canDelete={false}
-                    canExport={true}
-                    isActive={false}
-                    onSelect={ () =>  setSelectedActivityId(activity.id === selectedActivityId ? null : activity.id) }                       
-                />
-            )}
-            getKey={(activity) => activity.id}
-            getDayKey={(activity) => {
-            // Optional: extract YYYY-MM-DD from activity.dateTime for sticky labels
-            const date = new Date(activity.dateTime);
-            return date.toISOString().split('T')[0];
-  }}
-  className="flex-1"
-*/

@@ -210,7 +210,7 @@ function App() {
             {/* Column 1: New content area */}
             <div className="lg:col-start-1 lg:col-span-1">
               <div className="bg-white/70 rounded-lg">
-                {/* Add your column 1 content here */}
+                
                 <nav id="navigation-bar" data-nav>
                   <Navigation
                     currentView={view}
@@ -301,7 +301,9 @@ function App() {
           </section>  
         )}
             {/* repeat sections to create scrollable content */}
-                </div>
+            </div>
+           
+            
           </div>
                 </section>
                 </div>

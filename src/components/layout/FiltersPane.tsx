@@ -3,7 +3,7 @@ import { Filter, X } from 'lucide-react';
 import type { User } from '../../types';
 import {AVAILABLE_TAGS } from '../../types';
 
-
+/*7
 interface FiltersPaneProps {
   members: User[];
   filterDate: string;
@@ -81,7 +81,7 @@ export const FiltersPane: React.FC<FiltersPaneProps> = ({
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
-        {/* Date Filter */}
+        {/* Date Filter /}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Filter by Date
@@ -94,7 +94,7 @@ export const FiltersPane: React.FC<FiltersPaneProps> = ({
           />
         </div>
 
-        {/* Member Filter */}
+        {/* Member Filter /}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Filter by Creator
@@ -113,7 +113,7 @@ export const FiltersPane: React.FC<FiltersPaneProps> = ({
           </select>
         </div>
 
-        {/* Active Filters Display */}
+        {/* Active Filters Display /}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Active Filters
@@ -136,7 +136,7 @@ export const FiltersPane: React.FC<FiltersPaneProps> = ({
         </div>
       </div>
 
-      {/* Tags Filter */}
+      {/* Tags Filter /}
       <div className="mt-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Filter by Tags
@@ -160,3 +160,5 @@ export const FiltersPane: React.FC<FiltersPaneProps> = ({
     </div>
   );
 };
+
+*/
