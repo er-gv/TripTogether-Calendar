@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Trip, Activity, User } from '@/types';
-
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll'
 
 interface DaysListProps {
@@ -55,8 +55,12 @@ export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], curre
 
   return (
   <div className='flex bg-blue-100 text-emerald-600 shadow-md rounded-lg'>
-    <button className="text-left font-bold p-3 border-b-2 border-emerald-600">
-      Scroll Left
+    <button className="text-left font-bold p-3 border-b-2 border-emerald-600"
+    onClick={() => {
+      document.querySelector('#days-list-container')?.scrollBy({ left: -100, behavior: 'smooth'});
+    }}>
+      
+      <ChevronLeft size={40} color="#23b340" strokeWidth={3} />
     </button>
   <div className=" bg-white/50 overflow-auto whitespace-nowrap w-full p-3"
   id ="days-list-container">
@@ -108,8 +112,11 @@ export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], curre
         
     )}
     </div>
-    <button className="text-left font-bold p-3 border-b-2 border-emerald-600">
-      Scroll right
+    <button className="text-left font-bold p-3 border-b-2 border-emerald-600"
+    onClick={() => {
+      document.querySelector('#days-list-container')?.scrollBy({ left: +100, behavior: 'smooth'});
+    }}>
+      <ChevronRight size={40} color="#23b340" strokeWidth={3} />
     </button>
     </div>  
   );
