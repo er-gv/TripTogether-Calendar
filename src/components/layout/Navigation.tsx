@@ -20,7 +20,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activ
 
   // days list handled by DaysList component
   return (
-    <>
+    <div className="flex gap-6 px-4 items-center">
       
         <div className="max-w-7xl mx-auto ">
           
@@ -89,6 +89,6 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activ
         </div>
       
 
-    </>
+    </div>
   );
 };

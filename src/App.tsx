@@ -20,6 +20,7 @@ import type { ViewMode, AuthMode } from './types';
 function App() {
   
   const [view, setView] = useState<ViewMode>('memberActivities');
+  const [prevView, setPrevView] = useState<ViewMode>('allActivities');
   const [authView, setAuthView] = useState<AuthMode>('splash');
   const [editingActivityId, setEditingActivityId] = useState<string | null>(null);
   const [currentTripId, setCurrentTripId] = useState<string | null>(null);
@@ -114,9 +115,15 @@ function App() {
       alert('Failed to update activity. Please try again.');
     }
   };
-
+  
+  const changeView = (newView: ViewMode) => {
+    setPrevView(view);
+    setView(newView);
+  }
+  
   const handleCreateActivity = async (activityData: any) => {
     try {
+      setPrevView(view);
       await createActivity({
         ...activityData,
         tripId: currentTrip.id,
@@ -124,7 +131,7 @@ function App() {
         creatorName: user.displayName,
         optedInUsers: [user.id],
       });
-      setView('allActivities');
+      setView(prevView);
     } catch (error) {
       console.error('Error creating activity:', error);
       alert('Failed to create activity. Please try again.');
@@ -145,13 +152,14 @@ function App() {
   const handleEditActivity = (activityId: string) => {
     // open edit form for the activity
     setEditingActivityId(activityId);
+    setPrevView(view);
     setView('edit');
   };
 
   const handleSaveEditedActivity = async (activityId: string, data: any) => {
     try {
       await editActivity(activityId, data);
-      setView('allActivities');
+      setView(prevView);
       setEditingActivityId(null);
     } catch (error) {
       console.error('Error saving edited activity:', error);
@@ -164,55 +172,7 @@ function App() {
     setAuthView('splash');
   };
 
-  // Scroll to the first activity that falls on the given ISO day string (YYYY-MM-DDT...)
-  const scrollToDay = (iso: string) => {
-    console.log("scrollToDay called with iso:", iso);
-    try {
-      const targetDate = new Date(iso);
-      const targetDayKey = targetDate.toISOString().slice(0, 10);
-      console.log("targetDayKey:", targetDayKey);
-      // Find the DOM element that Dashboard attaches with data-day
-      const el = document.querySelector(`[data-day="${targetDayKey}"]`);
-
-      if (el) {
-        console.log("Found element:", el);  
-        // Compute header/nav offset dynamically if possible
-        const headerEl = document.querySelector('header');
-        const navEl = document.querySelector('[data-nav]');
-        console.log("headerEl:", headerEl, "navEl:", navEl);
-        console.log("header height:", headerEl ? (headerEl as HTMLElement).offsetHeight : "none", "nav height:", navEl ? (navEl as HTMLElement).offsetHeight : "none");
-        let offset = 120;
-        if (headerEl) offset = offset - 0 + (headerEl as HTMLElement).offsetHeight;
-        if (navEl) offset += (navEl as HTMLElement).offsetHeight;
-
-        const rect = (el as HTMLElement).getBoundingClientRect();
-        const top = window.scrollY + rect.top - offset;
-        console.log("Scrolling to top position:", top);
-        window.scrollTo({ top, behavior: 'smooth' });
-        try {
-          const node = el as HTMLElement;
-          node.classList.remove('flash-highlight');
-          // Force reflow to restart animation
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          node.offsetWidth;
-          node.classList.add('flash-highlight');
-          const handle = () => {
-            node.classList.remove('flash-highlight');
-            node.removeEventListener('animationend', handle);
-          };
-          node.addEventListener('animationend', handle);
-        } catch (err) {
-          console.error("Error in scrollToDay animation handling:", err);
-        }
-      }
-      else {
-        console.log("No element found for day key:", targetDayKey);
-      }
-    } catch (err) {
-      console.error("Error in scrollToDay:", err);
-    }
-  };
-
+  
   const toggleActivitiesListForFilteredUser = (userName: string) => {
     //setFilterMember(userName);
     setView('memberActivities');
@@ -225,26 +185,27 @@ function App() {
  */
   return (
 
-    <article className="w-full h-[800px] rounded-lg">
+    <article>
       
       {/* Fixed top bar containing Header and Navigation with shared gradient background */}
-      <div className="fixed top-0 left-0 right-0 z-20 w-full backdrop-blur bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
-        <header>
+      <section className="fixed top-0 left-0 right-0 z-20 w-full backdrop-blur bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
+        <header id="fixed-header">
           <Header trip={currentTrip} user={user} memberCount={members.length} onLogout={handleLogout} />
         </header>
-        <nav className="flex gap-6 px-4 items-center">
+        <nav id="navigation-bar" data-nav>
           <Navigation
             currentView={view}
             activities={activities}
             trip={currentTrip}
-            onViewChange={setView}          
+            onViewChange={changeView}          
             onSetFilterMember={toggleActivitiesListForFilteredUser}
           /> 
         </nav>
-      </div>
+      </section>
+      
       
       {/* Main Content with top padding to account for fixed header */}
-      <main className="pt-32 p-4 space-y-4">
+      <main className="fixed left-0 right-0 z-10 w-full pt-32 p-4 space-y-4">
       <div className="h-full">
   
       <section className=" w-full h-[1600px] shadow-lg"
@@ -283,15 +244,14 @@ function App() {
                 onToggleOptIn={handleToggleOptIn}                
                 onEditActivity={handleEditActivity}
                 onDeleteActivity={handleDeleteActivity}
-                onDayClicked={scrollToDay}
-                
+              
               />
             
         )}
 
         
         {/* Show all activities browser 
-        {view === 'allActivities' && (
+        view === 'allActivities' && (
           <ActivityBrowser
             activities={activities}
             currentUser={user}
@@ -306,23 +266,28 @@ function App() {
             onFilterDateChange={setFilterDate}
             onFilterTagsChange={setFilterTags}
           />
-        )}
-        */}
+        )}*/}
+        
 
         {view === 'create' && (
+          
+          <section className="flex-1 overflow-y-auto h-[800px] ">
           <CreateActivity
             onCreateActivity={handleCreateActivity}
-            onCancel={() => setView('memberActivities')}
+            onCancel={() => setView(prevView)}
             activeTrip={currentTrip}
           />
+          </section>
         )}
         {view === 'edit' && editingActivityId && (
+          <section className="flex-1 overflow-y-auto h-[600px] margin-10">
           <EditActivity
             activity={activities.find(a => a.id === editingActivityId)!}
             onEditActivity={handleSaveEditedActivity}
-            onCancel={() => { setView('memberActivities'); setEditingActivityId(null); }}
+            onCancel={() => { setView(prevView); setEditingActivityId(null); }}
             activeTrip={currentTrip}
           />
+          </section>  
         )}
             {/* repeat sections to create scrollable content */}
                 </div>
