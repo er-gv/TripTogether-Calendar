@@ -3,8 +3,7 @@ import './App.css';
 import { SplashScreen } from './components/auth/SplashScreen';
 import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
-//import { ActivitiesBrowser } from './components/layout/ActivitiesBrowser';
-import { MyActivities } from './components/layout/MyActivities';
+import { ActivitiesBrowser } from './components/layout/ActivitiesBrowser';
 import { CreateActivity } from './components/activities/CreateActivity';
 import { EditActivity } from './components/activities/EditActivity';
 import { MembersList } from './components/members/MembersList';
@@ -20,8 +19,8 @@ import { ActivityFilters } from './components/activities/ActivityFilters';
 
 function App() {
   
-  const [view, setView] = useState<ViewMode>('memberActivities');
-  const [prevView, setPrevView] = useState<ViewMode>('allActivities');
+  const [view, setView] = useState<ViewMode>('activitiesView');
+  const [prevView, setPrevView] = useState<ViewMode>('activitiesView');
   const [authView, setAuthView] = useState<AuthMode>('splash');
   const [editingActivityId, setEditingActivityId] = useState<string | null>(null);
   const [currentTripId, setCurrentTripId] = useState<string | null>(null);
@@ -29,6 +28,7 @@ function App() {
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [filterMember, setFilterMember] = useState('');
   const [filterCreatorMember, setFilterCreatorMember] = useState('');
+  const [isCurrentUserOnly, setIsCurrentUserOnly] = useState(false);
   
   
   
@@ -124,7 +124,7 @@ function App() {
   
   const handleCreateActivity = async (activityData: any) => {
     try {
-      setPrevView(view);
+
       await createActivity({
         ...activityData,
         tripId: currentTrip.id,
@@ -176,7 +176,7 @@ function App() {
   
   const toggleActivitiesListForFilteredUser = (userName: string) => {
     //setFilterMember(userName);
-    setView('memberActivities');
+    setView('membersView');
   };
 
   /**
@@ -200,123 +200,108 @@ function App() {
       <main className="fixed left-0 right-0 z-10 w-full space-y-4">
       <div className="h-full">
   
-      <section className=" w-full h-[2000px] shadow-lg pt-10"
-            style={{ backgroundImage: `url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600")`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'repeat-y'
+        <section className=" w-full h-[2000px] shadow-lg pt-10"
+          style={{ backgroundImage: `url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'repeat-y'
           }}>
-            <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_2.2fr_2.0fr_2.2fr] gap-4 max-w-7xl mx-auto px-4 pb-8 pt-4">
-            
-            {/* Column 1: New content area */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_2.2fr_2.0fr_2.2fr] gap-4 max-w-7xl mx-auto px-4 pb-8 pt-4">
+              
+            {/* Column 1: Navigation area */}
             <div className="lg:col-start-1 lg:col-span-1">
-              <div className="bg-white/70 rounded-lg">
-                
-                <nav id="navigation-bar" data-nav>
-                  <Navigation
-                    currentView={view}
-                    activities={activities}
-                    trip={currentTrip}
-                    onViewChange={changeView}          
-                    onLogout={handleLogout}
-                    onSetFilterMember={toggleActivitiesListForFilteredUser}
-                  /> 
+                <div className="bg-white/70 rounded-lg">
+                  
+                  <nav id="navigation-bar" data-nav>
+                    <Navigation
+                      currentView={view}
+                      isCurrentUserOnly={isCurrentUserOnly}
+                      onSetFilterMember={toggleActivitiesListForFilteredUser}
+                      onSetCurrentUserFilter={setIsCurrentUserOnly}
+                      onViewChange={changeView}          
+                      onSetPrevView={setPrevView}
+                      onLogout={handleLogout}
+                    /> 
 
-                </nav>
-              </div>
+                  </nav>
+                </div>
             </div>
 
             {/* Columns 2-3: Main content */}
             <div className="lg:col-start-2 lg:col-span-2">
-      
-      
         
-        {view === 'membersList' && (
-          <MembersList
-            members={members}
-            ownerId={currentTrip.ownerId}
-            currentUserId={user.id}
-            onSetFilterMember={setFilterCreatorMember}
-          />
-        )}
-        
-        {view === 'memberActivities' && (
-          
-              <MyActivities
-                trip={currentTrip}
-                activities={activities}
-                currentUser={user}
-                isOwner={isOwner}
-                onToggleOptIn={handleToggleOptIn}                
-                onEditActivity={handleEditActivity}
-                onDeleteActivity={handleDeleteActivity}
-              
-              />
-            
-        )}
-
-        
-        {/* Show all activities browser 
-        view === 'allActivities' && (
-          <ActivityBrowser
-            activities={activities}
-            currentUser={user}
-            members={members}
-            onToggleOptIn={handleToggleOptIn}
-            onDeleteActivity={handleDeleteActivity}
-            isOwner={isOwner}
-            onFilterDate={filterDate}
-            onFilterMember={filterCreatorMember}
-            onSetFilterOptInMembers={setFilterOptInMembers}
-            filterTags={filterTags}
-            onFilterDateChange={setFilterDate}
-            onFilterTagsChange={setFilterTags}
-          />
-        )}*/}
-        
-
-        {view === 'create' && (
-          
-          <section className="flex-1 overflow-y-auto h-[800px] ">
-          <CreateActivity
-            onCreateActivity={handleCreateActivity}
-            onCancel={() => setView(prevView)}
-            activeTrip={currentTrip}
-          />
-          </section>
-        )}
-        {view === 'edit' && editingActivityId && (
-          <section className="flex-1 overflow-y-auto h-[600px] margin-10">
-          <EditActivity
-            activity={activities.find(a => a.id === editingActivityId)!}
-            onEditActivity={handleSaveEditedActivity}
-            onCancel={() => { setView(prevView); setEditingActivityId(null); }}
-            activeTrip={currentTrip}
-          />
-          </section>  
-        )}
-            {/* repeat sections to create scrollable content */}
-            </div>
-            <div className="lg:col-start-4 lg:col-span-1">
-              <div className="bg-white/70 rounded-lg"></div>
-                <ActivityFilters
-                  filterDate={filterDate}
-                  filterMember={filterMember}
-                  filterTags={filterTags}
+              {view === 'membersView' && (
+                <MembersList
                   members={members}
-                  onFilterDateChange={setFilterDate}
-                  onFilterMemberChange={setFilterMember}
-                  onFilterTagsChange={setFilterTags}
+                  ownerId={currentTrip.ownerId}
+                  currentUserId={user.id}
+                  onSetFilterMember={setFilterCreatorMember}
                 />
+              )}
+          
+              {view === 'activitiesView' && (
+                
+                    <ActivitiesBrowser
+                      trip={currentTrip}
+                      activities={activities}
+                      currentUser={user}
+                      isOwner={isOwner}
+                      onToggleOptIn={handleToggleOptIn}                
+                      onEditActivity={handleEditActivity}
+                      onDeleteActivity={handleDeleteActivity}
+                      isCurrentUserOnly={isCurrentUserOnly}
+                      dateFilter={filterDate}
+                      tagsFilter={filterTags}
+                      optInFilter={[]}
+                      creatorFilter={filterCreatorMember}
+                    />
+                  
+              )}
+
+              {view === 'create' && (  
+                <section className="flex-1 overflow-y-auto h-[600px] pb-4 ">
+                <CreateActivity
+                  onCreateActivity={handleCreateActivity}
+                  onCancel={() => setView(prevView)}
+                  activeTrip={currentTrip}
+                />
+                </section>
+              )}
+              
+              {view === 'edit' && editingActivityId && (
+                <section className="flex-1 overflow-y-auto h-[600px] margin-10">
+            <EditActivity
+              activity={activities.find(a => a.id === editingActivityId)!}
+              onEditActivity={handleSaveEditedActivity}
+              onCancel={() => { setView(prevView); setEditingActivityId(null); }}
+              activeTrip={currentTrip}
+            />
+                </section>  
+              )}
+            </div>
+
+            {/* Filters panel */}
+            <div className="lg:col-start-4 lg:col-span-1">
+              <div className="bg-white/70 rounded-lg">
+                {view === 'activitiesView' && (
+                  <ActivityFilters
+                    filterDate={filterDate}
+                    filterMember={filterMember}
+                    filterTags={filterTags}
+                    members={members}
+                    onFilterDateChange={setFilterDate}
+                    onFilterMemberChange={setFilterMember}
+                    onFilterTagsChange={setFilterTags}
+                    onFilterCreatorMemberChange={setFilterCreatorMember}
+                  />
+                )}
               </div>  
             </div>
-                </section>
-                </div>
-          </main>
-      
-
-    </article>
-  );
-};
+          </div>
+        </section>
+      </div>
+    </main>
+  </article>
+);};
 
 export default App;

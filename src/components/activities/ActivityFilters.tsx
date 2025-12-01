@@ -10,6 +10,7 @@ interface ActivityFiltersProps {
   members: User[];
   onFilterDateChange: (date: string) => void;
   onFilterMemberChange: (memberId: string) => void;
+  onFilterCreatorMemberChange: (creatorId: string) => void;
   onFilterTagsChange: (tags: string[]) => void;
 }
 
@@ -20,6 +21,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
   members,
   onFilterDateChange,
   onFilterMemberChange,
+  onFilterCreatorMemberChange,
   onFilterTagsChange,
 }) => {
   const toggleTag = (tag: string) => {

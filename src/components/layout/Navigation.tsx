@@ -12,16 +12,26 @@ import { LogoutButton } from '../common/LogoutButton';
 
 interface NavigationProps {
   currentView: ViewMode;
-  trip?: Trip;
-  activities?: Activity[];
+  isCurrentUserOnly: boolean;
+  onSetCurrentUserFilter: (isCurrentUserOnly: boolean) => void;
+  onSetFilterMember: (memberId: string) => void;
   onViewChange: (view: ViewMode) => void;
+  onSetPrevView: (view: ViewMode) => void;
   onLogout: () => void;
-  onSetFilterMember: (member: string) => void;
+
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activities, onViewChange, onLogout, onSetFilterMember }) => {
-  const { user } = useAuth();
-
+export const Navigation: React.FC<NavigationProps> = ({ 
+  currentView, 
+  isCurrentUserOnly,
+  onSetCurrentUserFilter, 
+  onSetFilterMember,
+  onViewChange,
+  onSetPrevView,
+  onLogout 
+}) => {
+  
+  const { user} = useAuth();
   // days list handled by DaysList component
   return (
     <div className="">
@@ -29,16 +39,17 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activ
         <div className="max-w-7xl mx-auto">
           
           <div className="grid grid-cols-1 gap-2 p-2">
-            <button key='memberActivities'
+            <button key='currentUserActivities'
                   className={`px-4 py-2 md:px-6 rounded-lg font-medium transition flex items-center gap-2 
-                    ${currentView === 'memberActivities'
+                    ${currentView === 'activitiesView' && isCurrentUserOnly
                       ? 'bg-gray-300 text-purple-600 bold shadow-lg'
                       : 'bg-gray-300 text-gray-700 hover:bg-white'
                     }`
                   }
                   onClick={() => {
+                    onSetCurrentUserFilter(true)
                     onSetFilterMember('');
-                    onViewChange('memberActivities');
+                    onViewChange('activitiesView');
                   }}
                   
                 >
@@ -50,14 +61,15 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activ
 
             <button key='allActivities'
               className={`px-4 py-2 md:px-6 rounded-lg font-medium transition flex items-center gap-2 
-                ${currentView === 'allActivities'
+                ${currentView === 'activitiesView' && !isCurrentUserOnly
                   ? 'bg-gray-300 text-purple-600 bold shadow-lg'
                   : 'bg-gray-300 text-gray-700 hover:bg-white'
                 }`
               }
               onClick={() => {
+                onSetCurrentUserFilter(false)
                 onSetFilterMember('');
-                onViewChange('allActivities');
+                onViewChange('activitiesView');
               }}
               
             >
@@ -66,30 +78,31 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activ
 
             <button key='membersList'
               className={`px-4 py-2 md:px-6 rounded-lg font-medium transition flex items-center gap-2 
-                ${currentView === 'membersList'
+                ${currentView === 'membersView'
                   ? 'bg-gray-300 text-purple-600 bold shadow-lg'
                   : 'bg-gray-300 text-gray-700 hover:bg-white'
                 }`
               }
               onClick={() => {
-                onViewChange('membersList');
+                onViewChange('membersView');
               }}
               
             >
               <span className="hidden sm:inline">Trip Members</span>
             </button>
             <button
-              onClick={() => onViewChange('create')}
+              onClick={() => {
+                onSetPrevView(currentView);
+                onViewChange('create');
+              }}
               className="px-4 py-2 md:px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium hover:shadow-lg transform hover:scale-105 transition flex items-center gap-2"
-            >
+          >
               <Plus size={18} />
               <span className="hidden sm:inline">Create Activity</span>
             </button>
             <LogoutButton onLogout={onLogout} />
           </div>
-          {/* Days list component 
-          <DaysList trip={trip} activities={activities} onDayClick={onDayClick} />
-          */}
+          
         </div>
       
 

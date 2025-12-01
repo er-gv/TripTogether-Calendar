@@ -1,190 +1,165 @@
 import React from 'react';
-import { useState } from 'react';
 import type { Activity, Trip, User } from '../../types';
 import ActivityCard from '../activities/ActivityCard';
-import { ActivityFilters}  from '../activities/ActivityFilters';
-import { Search, Bug, Calendar, CalendarPlus } from 'lucide-react';
-import { FiltersPane } from './FiltersPane';
-import { DaysList } from './DaysList';
-import { generateTripId } from '@/utils/helpers';
-import type { ViewMode } from '@/types';
-import { exportEventToICS, exportUserItineraryToICS } from '@/utils/helpers';
+import EventsContainer from '@/components/activities/EventsContainer';
+import type {ScrollableProps} from '@/components/activities/EventsContainer';
+import { DaysList } from '@/components/layout/DaysList';
+import { CalendarPlus, Divide } from 'lucide-react';
+import { exportUserItineraryToICS } from '@/utils/helpers';
+
+//this state should be a part of eventsContainer
 
 
+interface ActivitiesBrowserProps {
+    activities: Activity[];
+    currentUser: User;
+    trip: Trip;
+    isOwner: boolean;
+    onToggleOptIn: (activityId: string, optIn: boolean) => void;
+    onEditActivity: (activityId: string) => void;
+    onDeleteActivity: (activityId: string) => void;
+    isCurrentUserOnly: boolean;    
+    dateFilter: string,
+    tagsFilter: string[],
+    optInFilter: string[],
+    creatorFilter: string,
+    /*
+    const [filterDate, setFilterDate] = useState('');
+      const [filterTags, setFilterTags] = useState<string[]>([]);
+      const [filterMember, setFilterMember] = useState('');
+      const [filterCreatorMember, setFilterCreatorMember] = useState('');
+      const [isCurrentUserOnly, setIsCurrentUserOnly] = useState(false);
+    */
+};
 
 
-interface ActivityDebuggBrowserProps {
-  /*trip: Trip;
-  activities: Activity[];
-  currentUser: User;
-  filterMember: string;
-  members: User[];
-  filterDate: string;
-  filterTags: string[];
-  filterOptInMembers: string[];
-  filterCreatorMember: string;
-
-  
-  onToggleOptIn: (activityId: string, optIn: boolean) => void;
-  
-  onSetFilterDate: (date: string) => void;
-  onSetFilterMember: (member: string) => void;
-  onSetFilterTags: (tags: string[]) => void;
-  onDeleteActivity: (activityId: string) => void;
-  onEditActivity: (activityId: string) => void;
-  isOwner: boolean;
-  view: ViewMode;*/
-}
-
-
-export const ActivitiesBrowser: React.FC<ActivityDebuggBrowserProps> = ({
-  /*trip,
-  activities,
-  currentUser,
-  filterMember,
-  members,
-  onToggleOptIn,
-  filterDate,
-  filterTags,
-  filterOptInMembers,
-  filterCreatorMember,
-  
-  onSetFilterDate,
-  onSetFilterMember,
-  onSetFilterTags,
+export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
+    activities,
+    currentUser,
+    trip,
+    isOwner,
+    isCurrentUserOnly,
+    onToggleOptIn,
+    onEditActivity,
+    onDeleteActivity,
+    dateFilter,
+    tagsFilter,
+    optInFilter,
+    creatorFilter,
     
-  onDeleteActivity,
-  isOwner,
-  view*/
 }) => {
-  
 
-  
-  /*
-  const caption = view === 'allActivities' ? 
-    (filterMember ? `Browse Activities created by ${filterMember}` : `Browse All Activities `)
-    : `${currentUser.displayName} selected Activities`;
- 
-  const filteredActivities = activities.filter(act => {  
-    if (filterDate && !act.dateTime.startsWith(filterDate)) return false;
-    if (filterMember && act.creatorId !== filterMember) return false;
-    if (filterTags.length > 0 && !filterTags.some(tag => act.tags.includes(tag))) return false;
-    return true;
-  });
+    const [selectedActivityId, setSelectedActivityId] = React.useState<string | null>(null);
+    const getDayKey = (activity: Activity) => {
+        // Optional: extract YYYY-MM-DD from activity.dateTime for sticky labels
+        const date = new Date(activity.dateTime);
+        return date.toISOString().split('T')[0];
+    };
 
-  const scrollToDay = (iso: string) => {
-    try {
-      const targetDate = new Date(iso);
-      const targetDayKey = targetDate.toISOString().slice(0, 10);
-
-      // Find the DOM element that Dashboard attaches with data-day
-      const el = document.querySelector(`[data-day="${targetDayKey}"]`);
-      if (el) {
-        // Compute header/nav offset dynamically if possible
-        const headerEl = document.querySelector('header');
-        const navEl = document.querySelector('[data-nav]');
-        let offset = 120;
-        if (headerEl) offset = offset - 0 + (headerEl as HTMLElement).offsetHeight;
-        if (navEl) offset += (navEl as HTMLElement).offsetHeight;
-
-        const rect = (el as HTMLElement).getBoundingClientRect();
-        const top = window.scrollY + rect.top - offset;
-        window.scrollTo({ top, behavior: 'smooth' });
-        try {
-          const node = el as HTMLElement;
-          node.classList.remove('flash-highlight');
-          // Force reflow to restart animation
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          node.offsetWidth;
-          node.classList.add('flash-highlight');
-          const handle = () => {
-            node.classList.remove('flash-highlight');
-            node.removeEventListener('animationend', handle);
-          };
-          node.addEventListener('animationend', handle);
-        } catch (err) {
-          // ignore
+    const scrollToDay = (iso: string) => {
+        const container = document.querySelector('#my-activities-section') as HTMLElement;
+        if(!container) {
+            console.error("No container found with id my-activities-section");
+            return;
         }
-      }
-    } catch (err) {
-      // ignore
-    }
-  };
-  
-  */
-  return (
-    <div>TODO: Activities Browser</div>
-    /*<div className="flex gap-2 flex-nowrap items-center max-w-7xl mx-auto px-4 pb-8">
-      <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl">
-            {view === 'memberActivities' 
-            ? (<Calendar className="text-white" size={24} />)
-            : (<Search className="text-white" size={24} />) 
-            
-            }
-            {view === 'memberActivities' &&(
-              <button onClick={() => {exportOptInEventsToICS(currentUser.id, currentUser.displayName);}}>Export your schedule
-                <CalendarPlus className="text-white" size={24} /> 
-              </button>
-            )
-            }
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">{caption}</h2>
-            {/* make the count area its own scrollable pane in case content expands *
-            <div className="max-h-52 overflow-auto">
-              <DaysList trip={trip} activities={activities} onDayClick={setFilterDate} />
-              
-              <FiltersPane
-                filterDate={filterDate}
-                filterMember={filterMember}
-                filterTags={filterTags}
-                members={members}
-                onFilterDateChange={setFilterDate}
-                onFilterMemberChange={setFilterMember}
-                onFilterTagsChange={setFilterTags}
-              />
-              <p className="text-sm text-gray-600">
-                {filteredActivities.length} {filteredActivities.length === 1 ? 'activity' : 'activities'} found
-              </p>
-            </div>
-          </div>
-        </div>
-
+    
+        const targetDate = new Date(iso);
+        const targetDayKey = targetDate.toISOString().slice(0, 10);
+        const el = document.querySelector(`[data-day="${targetDayKey}"]`) as HTMLElement;
+    
+        if(!el) {
+            console.error("No element found for day key:", targetDayKey);
+            return;
+        }
+        // Get element position relative to container
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = el.getBoundingClientRect();
         
+        // Calculate scroll position within the container
+        const scrollTop = container.scrollTop + (elementRect.top - containerRect.top);
+        
+        // Scroll the container (not the window)
+        container.scrollTo({ top: scrollTop, behavior: 'smooth' });
+        
+        try {
+            const node = el as HTMLElement;
+            node.classList.remove('flash-highlight');
+            // Force reflow to restart animation
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            node.offsetWidth;
+            node.classList.add('flash-highlight');
+            const handle = () => {
+                node.classList.remove('flash-highlight');
+                node.removeEventListener('animationend', handle);
+            };
+            node.addEventListener('animationend', handle);
+        } catch (err) {
+            console.error("Error in scrollToDay animation handling:", err);
+        }
+    
+        // Add flash highlight animation
+        el.classList.remove('flash-highlight');
 
-        {filteredActivities.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search size={40} className="text-gray-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              No activities found
-            </h3>
-            <p className="text-gray-500">
-              Try adjusting your filters or create a new activity!
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-4 mt-6">
-            {filteredActivities.map(activity => (
-              <ActivityCard
-                key={activity.id}
-                activity={activity}
-                currentUser={currentUser}
-                onToggleOptIn={onToggleOptIn}
-                onExportToCalendar={exportEventToICS}
-                onDeleteActivity={onDeleteActivity}
-                canDelete ={activity.creatorId === currentUser.id || isOwner}
-                canEdit={activity.creatorId === currentUser.id || isOwner}
-                isActive={selectedActivityId === activity.id}
-                onSelect={(id) => setSelectedActivityId(id === selectedActivityId ? null : id)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>*/
-  );
+        el.offsetWidth; // Force reflow
+        el.classList.add('flash-highlight');
+    
+    };
+
+    const filteredActivities = activities.filter(activity => {
+        // Filter by current user opt-in status
+        if (isCurrentUserOnly && !activity.optedInUsers.includes(currentUser.id)) {
+            return false;
+        }
+        if (dateFilter && !activity.dateTime.startsWith(dateFilter)) {
+            return false;
+        }
+        if (tagsFilter.length > 0 && !tagsFilter.some(tag => activity.tags.includes(tag))) {
+            return false;
+        }
+        if (optInFilter.length > 0 && !optInFilter.some(userId => activity.optedInUsers.includes(userId))) {
+            return false;
+        }
+        if (creatorFilter && activity.creatorName !== creatorFilter) {
+            return false;
+        }
+        return true;
+    });
+
+    //const scrollablePane = EventsContainer as React.FC<ScrollableProps<typeof ActivityCard>>;
+    
+    return (<>    
+        <section id="days-scroll-container">
+        <DaysList
+            activities={activities}
+            trip={trip}
+            onDayClicked={scrollToDay}
+            currentUser={currentUser}
+        />
+        </section>
+        
+        <section className="flex-1 overflow-y-auto h-[600px] bg-white/40" id="my-activities-section">
+            <ul className='pt-4 pb-10'>
+                {filteredActivities.map((activityItem, idx) => {
+                    
+                    return <li key={idx} data-day={getDayKey(activityItem)} className="m-5">
+                        <ActivityCard
+                            activity={activityItem}
+                            currentUser={currentUser}
+                            onToggleOptIn={onToggleOptIn}
+                            onEditActivity={onEditActivity}
+                            onDeleteActivity={onDeleteActivity}
+                            canEdit={true}
+                            canDelete={activityItem.creatorId === currentUser.id || isOwner}
+                            canExport={true}
+                            isActive={false}
+                            onSelect={ () =>  
+                                setSelectedActivityId(activityItem.id === selectedActivityId ? null : activityItem.id) 
+                            }    
+                            
+                        />
+                    </li>
+                })}
+            </ul>
+        </section>
+    </>);
 };

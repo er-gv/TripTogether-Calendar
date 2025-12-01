@@ -99,8 +99,8 @@ export const MyActivities: React.FC<MyActivitiesProps> = ({
         />
         </section>
         
-        <section className="flex-1 overflow-y-auto h-[600px] bg-white/40" id="my-activities-section">
-            <ul>
+        <section className="flex-1 overflow-y-auto h-[500px] bg-white/40" id="my-activities-section">
+            <ul className="py-4">
                 {activities.filter(activity => activity.optedInUsers.includes(currentUser.id)).map((activityItem, idx) => {
                     
                     return <li key={idx} data-day={getDayKey(activityItem)} className="m-5">
