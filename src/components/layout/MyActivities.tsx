@@ -99,7 +99,6 @@ export const MyActivities: React.FC<MyActivitiesProps> = ({
         />
         </section>
         
-        
         <section className="flex-1 overflow-y-auto h-[600px] bg-white/40" id="my-activities-section">
             <ul>
                 {activities.filter(activity => activity.optedInUsers.includes(currentUser.id)).map((activityItem, idx) => {
@@ -124,11 +123,6 @@ export const MyActivities: React.FC<MyActivitiesProps> = ({
                 })}
             </ul>
         </section>
-
-
-
-    
-    
     </>);
 };
 
