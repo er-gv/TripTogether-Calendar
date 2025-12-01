@@ -56,10 +56,10 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
         )}
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-1 gap-4">
         {/* Date Filter */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
             Filter by Date
           </label>
           <input
@@ -71,8 +71,8 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
         </div>
 
         {/* Member Filter */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
             Filter by Creator
           </label>
           <select
@@ -91,7 +91,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
 
         {/* Active Filters Display */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="flex text-sm font-medium text-gray-700 mb-2">
             Active Filters
           </label>
           <div className="flex flex-wrap gap-2">
@@ -113,11 +113,11 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
       </div>
 
       {/* Tags Filter */}
-      <div className="mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="mt-10">
+        <label className="flex items-start text-sm font-medium text-gray-700 mb-2">
           Filter by Tags
         </label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 overflow-y-auto h-[300px]">
           {AVAILABLE_TAGS.map(tag => (
             <button
               key={tag}

@@ -25,7 +25,7 @@ export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, curr
   // Insert placeholder after the first row (position 3) or at the end if fewer members
   
   return (
-  <div className="max-w-3xl bg-white rounded-xl shadow-md pt-10 px-8 pb-8">
+  <div className=" w-full bg-white rounded-xl shadow-md pt-10 px-8 pb-8">
   
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

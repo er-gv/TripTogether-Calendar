@@ -3,7 +3,7 @@ import './App.css';
 import { SplashScreen } from './components/auth/SplashScreen';
 import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
-import { ActivitiesBrowser } from './components/layout/ActivitiesBrowser';
+//import { ActivitiesBrowser } from './components/layout/ActivitiesBrowser';
 import { MyActivities } from './components/layout/MyActivities';
 import { CreateActivity } from './components/activities/CreateActivity';
 import { EditActivity } from './components/activities/EditActivity';
@@ -15,6 +15,7 @@ import { createTrip } from './services/firestore';
 import { auth } from './services/firebase';
 import { Loader, Navigation as NavIcon } from 'lucide-react';
 import type { ViewMode, AuthMode } from './types';
+import { ActivityFilters } from './components/activities/ActivityFilters';
 
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
   const [currentTripId, setCurrentTripId] = useState<string | null>(null);
   const [filterDate, setFilterDate] = useState('');
   const [filterTags, setFilterTags] = useState<string[]>([]);
-  const [filterOptInMembers, setFilterOptInMembers] = useState<string[]>([]);
+  const [filterMember, setFilterMember] = useState('');
   const [filterCreatorMember, setFilterCreatorMember] = useState('');
   
   
@@ -199,13 +200,13 @@ function App() {
       <main className="fixed left-0 right-0 z-10 w-full space-y-4">
       <div className="h-full">
   
-      <section className=" w-full h-[1600px] shadow-lg pt-10"
+      <section className=" w-full h-[2000px] shadow-lg pt-10"
             style={{ backgroundImage: `url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600")`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'repeat-y'
           }}>
-            <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_3fr_3fr_1fr] gap-6 max-w-7xl mx-auto px-4 pb-8 pt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_2.2fr_2.0fr_2.2fr] gap-4 max-w-7xl mx-auto px-4 pb-8 pt-4">
             
             {/* Column 1: New content area */}
             <div className="lg:col-start-1 lg:col-span-1">
@@ -231,18 +232,12 @@ function App() {
       
         
         {view === 'membersList' && (
-          <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 pb-8">
-            <div className="lg:col-span-2">
-           
-              <MembersList
-                members={members}
-                ownerId={currentTrip.ownerId}
-                currentUserId={user.id}
-                onSetFilterMember={setFilterCreatorMember}
-
-              />
-            </div>
-          </div>
+          <MembersList
+            members={members}
+            ownerId={currentTrip.ownerId}
+            currentUserId={user.id}
+            onSetFilterMember={setFilterCreatorMember}
+          />
         )}
         
         {view === 'memberActivities' && (
@@ -302,9 +297,19 @@ function App() {
         )}
             {/* repeat sections to create scrollable content */}
             </div>
-           
-            
-          </div>
+            <div className="lg:col-start-4 lg:col-span-1">
+              <div className="bg-white/70 rounded-lg"></div>
+                <ActivityFilters
+                  filterDate={filterDate}
+                  filterMember={filterMember}
+                  filterTags={filterTags}
+                  members={members}
+                  onFilterDateChange={setFilterDate}
+                  onFilterMemberChange={setFilterMember}
+                  onFilterTagsChange={setFilterTags}
+                />
+              </div>  
+            </div>
                 </section>
                 </div>
           </main>
