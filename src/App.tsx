@@ -192,29 +192,40 @@ function App() {
         <header id="fixed-header">
           <Header trip={currentTrip} user={user} memberCount={members.length} onLogout={handleLogout} />
         </header>
-        <nav id="navigation-bar" data-nav>
-          <Navigation
-            currentView={view}
-            activities={activities}
-            trip={currentTrip}
-            onViewChange={changeView}          
-            onSetFilterMember={toggleActivitiesListForFilteredUser}
-          /> 
-        </nav>
       </section>
       
       
       {/* Main Content with top padding to account for fixed header */}
-      <main className="fixed left-0 right-0 z-10 w-full pt-32 p-4 space-y-4">
+      <main className="fixed left-0 right-0 z-10 w-full space-y-4">
       <div className="h-full">
   
-      <section className=" w-full h-[1600px] shadow-lg"
+      <section className=" w-full h-[1600px] shadow-lg pt-10"
             style={{ backgroundImage: `url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600")`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'repeat-y'
           }}>
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_3fr_3fr_1fr] gap-6 max-w-7xl mx-auto px-4 pb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_3fr_3fr_1fr] gap-6 max-w-7xl mx-auto px-4 pb-8 pt-4">
+            
+            {/* Column 1: New content area */}
+            <div className="lg:col-start-1 lg:col-span-1">
+              <div className="bg-white/70 rounded-lg">
+                {/* Add your column 1 content here */}
+                <nav id="navigation-bar" data-nav>
+                  <Navigation
+                    currentView={view}
+                    activities={activities}
+                    trip={currentTrip}
+                    onViewChange={changeView}          
+                    onLogout={handleLogout}
+                    onSetFilterMember={toggleActivitiesListForFilteredUser}
+                  /> 
+
+                </nav>
+              </div>
+            </div>
+
+            {/* Columns 2-3: Main content */}
             <div className="lg:col-start-2 lg:col-span-2">
       
       

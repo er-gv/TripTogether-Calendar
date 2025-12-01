@@ -1,7 +1,8 @@
 import React from 'react';
 import { MapPin, LogOut, Users } from 'lucide-react';
 import type {User, Trip}  from '@/types';
-import { LogoutButton } from '@/components/common/LogoutButton';
+import { exportUserItineraryToICS } from '@/utils/helpers';
+import { CalendarPlus } from 'lucide-react';
 
 interface HeaderProps {
   trip: Trip;
@@ -49,23 +50,27 @@ export const Header: React.FC<HeaderProps> = ({ trip, user, memberCount, onLogou
               </h2>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 px-1 py-2 bg-purple-50 rounded-lg">
-                <img
-                  src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName)}`}
-                  alt={user.displayName}
-                  className="w-8 h-8 rounded-full"
-                />
-                <span className="text-sm font-medium text-gray-700 px-2 py-3">{user.displayName}</span>
+            <div className="flex flex-col items-center gap-2">
+              <div className="hidden md:flex flex-col items-stretch gap-2 px-3 py-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName)}`}
+                    alt={user.displayName}
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className="text-sm font-medium text-gray-700">{user.displayName}</span>
+                
+                  <button className="inline-flex items-center bg-blue-200 hover:bg-blue-100 text-emerald-600 px-3 py-1 rounded ml-2"
+                    onClick={() => exportUserItineraryToICS(user.id, user.displayName)}>
+                    <CalendarPlus size={18} className="mr-1" /> 
+                    <span className='text-xs font-bold'>
+                      Export itinerary
+                    </span>
+                  </button>
+                </div>
               </div>
-              
-                <LogoutButton onLogout={onLogout} />
-              
-              
             </div>
-            
-          </div>
-            
+            </div>
             
       </div>
     

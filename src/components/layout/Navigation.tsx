@@ -4,6 +4,9 @@ import { useAuth } from '@/hooks/useAuth';
 
 import type { Trip, Activity } from '@/types';
 import type { ViewMode } from '@/types';
+import { LogoutButton } from '../common/LogoutButton';
+
+
 
 //type NavView = 'debug' | 'dashboard' | 'browse' | 'members' | 'create' | 'edit';
 
@@ -12,19 +15,20 @@ interface NavigationProps {
   trip?: Trip;
   activities?: Activity[];
   onViewChange: (view: ViewMode) => void;
+  onLogout: () => void;
   onSetFilterMember: (member: string) => void;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activities, onViewChange, onSetFilterMember }) => {
+export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activities, onViewChange, onLogout, onSetFilterMember }) => {
   const { user } = useAuth();
 
   // days list handled by DaysList component
   return (
-    <div className="flex gap-6 px-4 items-center">
+    <div className="">
       
-        <div className="max-w-7xl mx-auto ">
+        <div className="max-w-7xl mx-auto">
           
-          <div className="flex gap-2 flex-nowrap items-center md:flex-wrap md:gap-2 pb-3 md:pb-3 ">
+          <div className="grid grid-cols-1 gap-2 p-2">
             <button key='memberActivities'
                   className={`px-4 py-2 md:px-6 rounded-lg font-medium transition flex items-center gap-2 
                     ${currentView === 'memberActivities'
@@ -74,14 +78,14 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, trip, activ
             >
               <span className="hidden sm:inline">Trip Members</span>
             </button>
-
             <button
               onClick={() => onViewChange('create')}
-              className="ml-auto px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium hover:shadow-lg transform hover:scale-105 transition flex items-center gap-2"
+              className="px-4 py-2 md:px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium hover:shadow-lg transform hover:scale-105 transition flex items-center gap-2"
             >
               <Plus size={18} />
               <span className="hidden sm:inline">Create Activity</span>
             </button>
+            <LogoutButton onLogout={onLogout} />
           </div>
           {/* Days list component 
           <DaysList trip={trip} activities={activities} onDayClick={onDayClick} />
