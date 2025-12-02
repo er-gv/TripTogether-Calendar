@@ -13,7 +13,6 @@ interface ActivitiesBrowserProps {
     isOwner: boolean;
     onToggleOptIn: (activityId: string, optIn: boolean) => void;
     onEditActivity: (activityId: string) => void;
-    onRescheduleActivity: (activityId: string) => void;
     onDeleteActivity: (activityId: string) => void;
     isCurrentUserOnly: boolean;    
     dateFilter: string,
@@ -31,7 +30,6 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
     isCurrentUserOnly,
     onToggleOptIn,
     onEditActivity,
-    onRescheduleActivity,
     onDeleteActivity,
     dateFilter,
     tagsFilter,
@@ -138,11 +136,10 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
                             currentUser={currentUser}
                             onToggleOptIn={onToggleOptIn}
                             onEditActivity={onEditActivity}
-                            onRescheduleActivity={onRescheduleActivity}
                             onDeleteActivity={onDeleteActivity}
                             canEdit={true}
                             canDelete={activityItem.creatorId === currentUser.id || isOwner}
-                            canExport={true}
+                            canExport={activityItem.optedInUsers.includes(currentUser.id)}
                             isActive={false}
                             onSelect={ () =>  
                                 setSelectedActivityId(activityItem.id === selectedActivityId ? null : activityItem.id) 

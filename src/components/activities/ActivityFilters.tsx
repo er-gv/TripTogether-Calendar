@@ -5,23 +5,25 @@ import {AVAILABLE_TAGS } from '../../types';
 
 interface ActivityFiltersProps {
   filterDate: string;
-  filterMember: string;
+  filterCreator: string;
+  filterOptInMembers: string[];
   filterTags: string[];
   members: User[];
   onFilterDateChange: (date: string) => void;
-  onFilterMemberChange: (memberId: string) => void;
-  onFilterCreatorMemberChange: (creatorId: string) => void;
+  onFilterCreatorChange: (creatorId: string) => void;
+  onFilterOptInChange: (memberIds: string[]) => void;
   onFilterTagsChange: (tags: string[]) => void;
 }
 
 export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
   filterDate,
-  filterMember,
   filterTags,
+  filterCreator,
+  filterOptInMembers,
   members,
   onFilterDateChange,
-  onFilterMemberChange,
-  onFilterCreatorMemberChange,
+  onFilterOptInChange,
+  onFilterCreatorChange,
   onFilterTagsChange,
 }) => {
   const toggleTag = (tag: string) => {
@@ -34,12 +36,13 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
 
   const clearAllFilters = () => {
     onFilterDateChange('');
-    onFilterMemberChange('');
+    onFilterOptInChange([]);
+    onFilterCreatorChange('');
     onFilterTagsChange([]);
   };
 
-  const hasActiveFilters = filterDate || filterMember || filterTags.length > 0;
-
+  const hasActiveFilters = filterDate || filterCreator || filterOptInMembers.length > 0 || filterTags.length > 0;
+  
   return (
     <div className="border-2 border-gray-200 rounded-xl p-4 bg-gray-50">
       <div className="flex items-center justify-between mb-4">
@@ -72,44 +75,81 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
           />
         </div>
 
-        {/* Member Filter */}
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            Filter by Creator
-          </label>
-          <select
-            value={filterMember}
-            onChange={(e) => onFilterMemberChange(e.target.value)}
-            className="input"
-          >
-            <option value="">All members</option>
-            {members.map(member => (
-              <option key={member.id} value={member.id}>
-                {member.displayName}
-              </option>
-            ))}
-          </select>
-        </div>
+        
+          {/* Creator Filter */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+              Filter by Creator
+            </label>
+            <select
+              value={filterCreator}
+              onChange={(e) => onFilterCreatorChange(e.target.value)}
+              className="input"
+            >
+              <option value="">All members</option>
+              {members.map(member => (
+                <option key={member.id} value={member.displayName}>
+                  {member.displayName}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Active Filters Display */}
-        <div>
-          <label className="flex text-sm font-medium text-gray-700 mb-2">
-            Active Filters
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {!hasActiveFilters && (
-              <span className="text-sm text-gray-500 italic">No filters applied</span>
-            )}
-            {filterDate && (
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
-                Date: {new Date(filterDate).toLocaleDateString()}
-              </span>
-            )}
-            {filterMember && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-                {members.find(m => m.id === filterMember)?.displayName}
-              </span>
-            )}
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Joiner Filter */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              Filter by Joiners
+            </label>
+            <div className="flex flex-col gap-2">
+              {members.map(member => (
+                <label key={member.id} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filterOptInMembers.includes(member.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        onFilterOptInChange([...filterOptInMembers, member.id]);
+                      } else {
+                        onFilterOptInChange(filterOptInMembers.filter(id => id !== member.id));
+                      }
+                    }}
+                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  />
+                  <span className="text-sm text-gray-700">{member.displayName}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        
+
+          {/* Active Filters Display */}
+          <div>
+            <label className="flex text-sm font-medium text-gray-700 mb-2">
+              Active Filters:
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {!hasActiveFilters && (
+                <span className="text-sm text-gray-500 italic">No filters applied</span>
+              )}
+              {filterDate && (
+                <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
+                  Date: {new Date(filterDate).toLocaleDateString()}
+                </span>
+              )}
+              {filterCreator && (
+                <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+                  {members.find(m => m.id === filterCreator)?. displayName}
+                </span>
+              )}
+              {filterOptInMembers.length > 0 && (
+                <div className='overflow-y h-[200px]'>
+                <ul className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+                  {filterOptInMembers.map(id => members.find(m => m.id === id)?<li>{members.find(m => m.id === id)?.displayName}</li>:null)}
+                </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

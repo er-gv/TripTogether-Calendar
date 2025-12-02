@@ -6,7 +6,7 @@ import { Navigation } from './components/layout/Navigation';
 import { ActivitiesBrowser } from './components/layout/ActivitiesBrowser';
 import { CreateActivity } from './components/activities/CreateActivity';
 import { EditActivity } from './components/activities/EditActivity';
-import { RescheduleActivity } from './components/activities/ReschedualActivity';
+import { RescheduleActivity } from './components/activities/RescheduleActivity';
 import { MembersList } from './components/members/MembersList';
 import { useAuth } from './hooks/useAuth';
 import { useTrip } from './hooks/useTrip';
@@ -28,8 +28,8 @@ function App() {
   const [currentTripId, setCurrentTripId] = useState<string | null>(null);
   const [filterDate, setFilterDate] = useState('');
   const [filterTags, setFilterTags] = useState<string[]>([]);
-  const [filterMember, setFilterMember] = useState('');
-  const [filterCreatorMember, setFilterCreatorMember] = useState('');
+  const [filterCreator, setFilterCreator] = useState('');
+  const [filterOptInMembers, setFilterOptInMembers] = useState<string[]>([]);
   const [isCurrentUserOnly, setIsCurrentUserOnly] = useState(false);
   
   
@@ -152,43 +152,24 @@ function App() {
     }
   };
 
-  const handleEditActivity = (activityId: string) => {
+  const handleEditActivity = (activityId: string, onlyReschedule?: boolean) => {
     // open edit form for the activity
+    console.log('@handleEditActivity activity ', activityId, onlyReschedule? "Reschedualing": "Editing");
     setEditingActivityId(activityId);
     setPrevView(view);
-    setView('edit');
+    if (onlyReschedule) {
+      console.log('Will call reschedule ', activityId);
+      setView('reschedule');
+    } else {
+      console.log('Will call edit ', activityId);
+      setView('edit');
+    } 
   };
 
-  const handleSaveEditedActivity = async (activityId: string, data: any) => {
+  
+  const handleSaveEditActivity = async (activityId: string, data: any) => {
     try {
       await editActivity(activityId, data);
-      setView(prevView);
-      setEditingActivityId(null);
-    } catch (error) {
-      console.error('Error saving edited activity:', error);
-      alert('Failed to save changes. Please try again.');
-    }
-  };
-
-
-  const handleRescheduleActivity = (activityId: string, onlyDate?: boolean) => {
-    // open edit form for the activity
-    console.log('@Reschedule activity', activityId);
-    setEditingActivityId(activityId);
-    setPrevView(view);
-    setView('reschedule');
-    /*if (onlyDate) {
-      // Handle only date rescheduling logic here if needed
-      
-    }
-    else {
-      setView('edit');
-    }*/
-  };
-
-  const handleSaveRescheduledActivity = async (activityId: string, datetimeData: any) => {
-    try {
-      await editActivity(activityId, datetimeData);
       setView(prevView);
       setEditingActivityId(null);
     } catch (error) {
@@ -264,7 +245,8 @@ function App() {
                   members={members}
                   ownerId={currentTrip.ownerId}
                   currentUserId={user.id}
-                  onSetFilterMember={setFilterCreatorMember}
+                  onSetFilterCreator={setFilterCreator}
+                  onSetFilterOptInMembers={setFilterOptInMembers}
                 />
               )}
           
@@ -277,13 +259,13 @@ function App() {
                       isOwner={isOwner}
                       onToggleOptIn={handleToggleOptIn}                
                       onEditActivity={handleEditActivity}
-                      onRescheduleActivity={handleRescheduleActivity}
                       onDeleteActivity={handleDeleteActivity}
                       isCurrentUserOnly={isCurrentUserOnly}
                       dateFilter={filterDate}
                       tagsFilter={filterTags}
-                      optInFilter={[]}
-                      creatorFilter={filterCreatorMember}
+                      optInFilter={filterOptInMembers}
+                      creatorFilter={filterCreator}
+
                     />
                   
               )}
@@ -302,7 +284,18 @@ function App() {
                 <section className="flex-1 overflow-y-auto h-[600px] margin-10">
             <EditActivity
               activity={activities.find(a => a.id === editingActivityId)!}
-              onEditActivity={handleSaveEditedActivity}
+              onEditActivity={handleSaveEditActivity}
+              onCancel={() => { setView(prevView); setEditingActivityId(null); }}
+              activeTrip={currentTrip}
+            />
+                </section>  
+              )}
+
+              {view === 'reschedule' && editingActivityId && (
+                <section className="flex-1 overflow-y-auto h-[600px] margin-10">
+            <RescheduleActivity
+              activity={activities.find(a => a.id === editingActivityId)!}
+              onEditActivity={handleSaveEditActivity}
               onCancel={() => { setView(prevView); setEditingActivityId(null); }}
               activeTrip={currentTrip}
             />
@@ -315,14 +308,15 @@ function App() {
               <div className="bg-white/70 rounded-lg">
                 {view === 'activitiesView' && (
                   <ActivityFilters
+                    members={members}  
                     filterDate={filterDate}
-                    filterMember={filterMember}
+                    filterCreator={filterCreator}
+                    filterOptInMembers={filterOptInMembers}
                     filterTags={filterTags}
-                    members={members}
                     onFilterDateChange={setFilterDate}
-                    onFilterMemberChange={setFilterMember}
+                    onFilterCreatorChange={setFilterCreator}
                     onFilterTagsChange={setFilterTags}
-                    onFilterCreatorMemberChange={setFilterCreatorMember}
+                    onFilterOptInChange={setFilterOptInMembers}
                   />
                 )}
               </div>  

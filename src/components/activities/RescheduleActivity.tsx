@@ -2,26 +2,27 @@ import React, { useState } from 'react';
 import { FilePen, Image, MapPin, Calendar, Tag, Loader, Users } from 'lucide-react';
 import { Button } from '../common/Button';
 import { type Activity } from '@/types';
-
+import { getTags } from '@/utils/helpers';
 import { isValidUrl } from '@/utils/helpers';
+import { getTripDestination } from '@/utils/helpers';
 import { formatDateTime, toDateTimeLocal } from '@/utils/datetime';
+import RichTextEditor from '@/components/common/RichTextEditor';
 import type { Trip } from '@/types';
 
-interface EditActivityProps {
+interface RescheduleActivityProps {
   activity: Activity;
   onEditActivity: (activityId: string, activityData: Partial<Activity>) => void | Promise<void>;
   onCancel: () => void;
   activeTrip: Trip;
 }
 
-export const RescheduleActivity: React.FC<EditActivityProps> = ({
+export const RescheduleActivity: React.FC<RescheduleActivityProps> = ({
   activity,
   onEditActivity,
   onCancel,
   activeTrip,
 }) => {
-  
-    const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   // Runtime guard: EditActivity requires a valid Trip object. TypeScript makes this
   // a required prop, but add a runtime check to catch misuse from JS consumers.
@@ -41,15 +42,10 @@ export const RescheduleActivity: React.FC<EditActivityProps> = ({
     });
   }, [activity]);
 
-  const toggleTag = (tag: string) => {
-    setFormData(prev => ({
-      ...prev,
-    }));
-  };
-
+  
   const validate = () => {
     const newErrors: Record<string, string> = {};
-
+  
     if (!formData.dateTime) {
       newErrors.dateTime = 'Date and time are required';
     }
@@ -85,7 +81,7 @@ export const RescheduleActivity: React.FC<EditActivityProps> = ({
         // Support async handlers that return a Promise
         await Promise.resolve(onEditActivity(activity.id, formData) as any);
       } catch (err) {
-        console.error('Reschedule activity failed', err);
+        console.error('Edit activity failed', err);
         setSubmitError((err && (err as any).message) || 'Failed to edit activity.');
       } finally {
         setSubmitting(false);
@@ -95,7 +91,7 @@ export const RescheduleActivity: React.FC<EditActivityProps> = ({
     submit();
   };
   const tripCaption = activeTrip.name.charAt(0).toUpperCase() + activeTrip.name.slice(1) + ' (' + new Date(activeTrip.startDate).toDateString() + ' - ' + new Date(activeTrip.endDate).toDateString() + ')';
-  const activityName = activity.name ? `"${activity.name}"` : 'this activity';
+
   return (
     <div className="relative max-w-4xl mx-auto px-4 pb-8 ">
       <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
@@ -104,8 +100,8 @@ export const RescheduleActivity: React.FC<EditActivityProps> = ({
             <FilePen className="text-white" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Reschedule Activity</h2>
-            <p className="text-sm text-gray-600">Change date and time for {activityName} ({tripCaption})</p>
+            <h2 className="text-2xl align-start font-bold text-gray-800">Reschedule Activity</h2>
+            <p className="text-sm text-gray-600">Change date and time for {activity.name} </p>
           </div>
         </div>
 
@@ -117,21 +113,10 @@ export const RescheduleActivity: React.FC<EditActivityProps> = ({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Activity Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Activity Name {activity.name}<span className="text-red-500">*</span>
-            </label>
-          </div>
-
-        
           
           {/* Date and Time */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-              <Calendar size={16} />
-              Date and Time <span className="text-red-500">*</span>
-            </label>
+            
             <input
               type="datetime-local"
               value={formData.dateTime}
@@ -142,11 +127,10 @@ export const RescheduleActivity: React.FC<EditActivityProps> = ({
           </div>
 
           
-
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t">
             <Button type="submit" variant="success" icon={submitting ? Loader : FilePen} className="flex-1" disabled={submitting}>
-              {submitting ? 'Updating...' : 'Reschedule Activity'}
+              {submitting ? 'Updating...' : 'Update Activity'}
             </Button>
             <Button type="button" variant="secondary" onClick={onCancel} className="flex-1">
               Cancel

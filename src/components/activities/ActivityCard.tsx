@@ -13,8 +13,7 @@ interface ActivityCardProps {
   currentUser: User;
   onToggleOptIn: (activityId: string, optIn: boolean) => void;
   onDeleteActivity: (activityId: string) => void;
-  onEditActivity?: (activityId: string) => void;
-  onRescheduleActivity: (activityId: string) => void;
+  onEditActivity: (activityId: string, onlyReschedule?: boolean) => void;
   onSelect: (activityId: string) => void;
   canEdit: boolean;
   canDelete: boolean;
@@ -33,7 +32,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   onToggleOptIn,
   onDeleteActivity,
   onEditActivity,
-  onRescheduleActivity,
   onSelect,
 }) => {
   
@@ -45,8 +43,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     
     
   const [detailsOpen, setDetailsOpen] = React.useState(false);
-  const hasDetails = Boolean(activity.description && activity.description.trim().length > 0);
-
+  
   return (
   <div className={containerClass} onClick={() => onSelect?.(activity.id)}>
       <div className="flex gap-2">
@@ -128,7 +125,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         )}
         {canEdit && (
           <button id="editActivity"
-            onClick={(e) => { e.stopPropagation(); onEditActivity?.(activity.id); }}
+            onClick={(e) => { e.stopPropagation(); onEditActivity?.(activity.id, false); }}
             className="p-2 text-emerald-600 hover:bg-blue-50 rounded-lg transition"
             title="Edit activity"
           >
@@ -136,7 +133,9 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           </button>
         )}
          <button id="rescheduleActivity"
-            onClick={(e) => { e.stopPropagation(); onRescheduleActivity(activity.id); }}
+            onClick={(e) => { e.stopPropagation(); 
+              console.log('Reschedule activity', activity.id);
+              onEditActivity(activity.id, true ); }}
             className="p-2 text-emerald-600 hover:bg-blue-50 rounded-lg transition"
             title="Reschedule activity"
           >

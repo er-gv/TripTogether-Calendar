@@ -7,11 +7,17 @@ interface MembersListProps {
   members: User[];
   ownerId: string;
   currentUserId: string;
-  //onShowCreatedActivities?: (memberId: string) => void;
-  onSetFilterMember: (memberName: string) => void;
+  onSetFilterCreator: (creatorName: string) => void;
+  onSetFilterOptInMembers: (optInMembers: string[]) => void;
 };
 
-export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, currentUserId, onSetFilterMember }) => {
+export const MembersList: React.FC<MembersListProps> = ({ 
+  members,
+  ownerId, 
+  currentUserId, 
+  onSetFilterCreator, 
+  onSetFilterOptInMembers 
+}) => {
   const [showInvite, setShowInvite] = React.useState(false);
 
   // Place the current user at the top of the list if present
@@ -36,7 +42,8 @@ export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, curr
         
       </div>
 
-  <div className="grid grid-cols-3 gap-y-3 gap-x-[17px] justify-center">
+  <div className='overflow-y-auto  h-[300px]'>
+  <div className="grid grid-cols-2 gap-y-3 gap-x-[17px] justify-center">
         {cells.slice(0, 9).map((member) => {
           const isEmpty = member.displayName === '';
           const isMe = member.id === currentUserId;
@@ -47,7 +54,7 @@ export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, curr
             >
               {!isEmpty ? (
                 <>
-                  <div className="flex flex-col gap-2 flex-1">
+                  <div className="flex flex-col gap-0 flex-1">
                     <div className="flex items-center gap-3">
                       <img
                         src={member.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.displayName)}`}
@@ -59,13 +66,23 @@ export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, curr
                         <p className="text-xs text-gray-500 text-left truncate max-w-[120px]">{member.email}</p>  
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 mt-2">
+                    <div className="flex items-start mt-2" id="itinerary-link">
                         <a
                           href="#"
-                          onClick={(e) => { e.preventDefault(); onSetFilterMember(member.displayName); }}
+                          onClick={(e) => { e.preventDefault(); onSetFilterOptInMembers([member.displayName]); }}
                           className="text-sm text-purple-600 hover:text-purple-800 hover:underline inline-flex items-center gap-1"
                         >
-                          <span>See schedule events</span>
+                          <span>See their itinerary</span>
+                          <ChevronRight size={14} />
+                        </a>
+                    </div>
+                    <div className="flex items-start" id="created activities-link">
+                        <a
+                          href="#"
+                          onClick={(e) => { e.preventDefault(); onSetFilterCreator(member.displayName); }}
+                          className="text-sm text-purple-600 hover:text-purple-800 hover:underline inline-flex items-center gap-1"
+                        >
+                          <span>See activities they createed</span>
                           <ChevronRight size={14} />
                         </a>
                     </div>
@@ -78,7 +95,7 @@ export const MembersList: React.FC<MembersListProps> = ({ members, ownerId, curr
           );
         })}
       </div>
-
+</div>
       {showInvite && (
         <div className="fixed inset-0 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowInvite(false)} />
