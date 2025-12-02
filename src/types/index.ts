@@ -67,7 +67,7 @@ export interface TripContextType {
   leaveTrip: () => void;
 }
 
-export type ViewMode = 'activitiesView' | 'activitiesView' | 'membersView' | 'settings' | 'create' | 'edit';
+export type ViewMode = 'activitiesView' | 'activitiesView' | 'membersView' | 'settings' | 'create' | 'edit' | 'reschedule';
 //export type AuthMode = 'login' | 'signup' | 'splash' | 'join' | 'createTrip';
 export type AuthMode = 'splash' | 'login' | 'signup' | 'create_trip' | 'join_trip' | 'auth-create' | 'auth-join';
 

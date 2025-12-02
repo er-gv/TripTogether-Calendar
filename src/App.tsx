@@ -6,6 +6,7 @@ import { Navigation } from './components/layout/Navigation';
 import { ActivitiesBrowser } from './components/layout/ActivitiesBrowser';
 import { CreateActivity } from './components/activities/CreateActivity';
 import { EditActivity } from './components/activities/EditActivity';
+import { RescheduleActivity } from './components/activities/ReschedualActivity';
 import { MembersList } from './components/members/MembersList';
 import { useAuth } from './hooks/useAuth';
 import { useTrip } from './hooks/useTrip';
@@ -15,6 +16,7 @@ import { auth } from './services/firebase';
 import { Loader, Navigation as NavIcon } from 'lucide-react';
 import type { ViewMode, AuthMode } from './types';
 import { ActivityFilters } from './components/activities/ActivityFilters';
+
 
 
 function App() {
@@ -168,6 +170,33 @@ function App() {
     }
   };
 
+
+  const handleRescheduleActivity = (activityId: string, onlyDate?: boolean) => {
+    // open edit form for the activity
+    console.log('@Reschedule activity', activityId);
+    setEditingActivityId(activityId);
+    setPrevView(view);
+    setView('reschedule');
+    /*if (onlyDate) {
+      // Handle only date rescheduling logic here if needed
+      
+    }
+    else {
+      setView('edit');
+    }*/
+  };
+
+  const handleSaveRescheduledActivity = async (activityId: string, datetimeData: any) => {
+    try {
+      await editActivity(activityId, datetimeData);
+      setView(prevView);
+      setEditingActivityId(null);
+    } catch (error) {
+      console.error('Error saving rescheduled activity:', error);
+      alert('Failed to save changes. Please try again.');
+    }
+  };
+
   const handleLogout = () => {
     setCurrentTripId(null);
     setAuthView('splash');
@@ -248,6 +277,7 @@ function App() {
                       isOwner={isOwner}
                       onToggleOptIn={handleToggleOptIn}                
                       onEditActivity={handleEditActivity}
+                      onRescheduleActivity={handleRescheduleActivity}
                       onDeleteActivity={handleDeleteActivity}
                       isCurrentUserOnly={isCurrentUserOnly}
                       dateFilter={filterDate}

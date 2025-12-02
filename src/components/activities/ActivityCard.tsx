@@ -1,13 +1,12 @@
 import React from 'react';
-import { Users, Trash2, FilePen, Check, ChevronDown, CalendarPlus } from 'lucide-react';
+import { Users, Trash2, FilePen, Check, ChevronDown, CalendarPlus, CalendarSync } from 'lucide-react';
 import type { Activity, User, Trip } from '@/types';
 
 import ActivityHeader from '@/components/activities/ActivityHeader'; 
+import ActivityContent  from '@/components/activities/ActivityContent';
 import { ActivityParticipants } from '@/components/activities/ActivityParticipants'; 
 import { exportEventToICS } from '@/utils/helpers';
-import ActivityContent from './ActivityContent';
 
-  
 
 interface ActivityCardProps {
   activity: Activity;
@@ -15,12 +14,14 @@ interface ActivityCardProps {
   onToggleOptIn: (activityId: string, optIn: boolean) => void;
   onDeleteActivity: (activityId: string) => void;
   onEditActivity?: (activityId: string) => void;
+  onRescheduleActivity: (activityId: string) => void;
+  onSelect: (activityId: string) => void;
   canEdit: boolean;
   canDelete: boolean;
   canExport: boolean;
   isActive: boolean;
-  onSelect: (activityId: string) => void;
 }
+  
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
   activity,
@@ -32,8 +33,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   onToggleOptIn,
   onDeleteActivity,
   onEditActivity,
+  onRescheduleActivity,
   onSelect,
 }) => {
+  
   const isOptedIn = activity.optedInUsers.includes(currentUser.id);
     const containerClass = isActive
     ? 'border-4 border-purple-600 rounded-xl p-8 transition bg-gray-100'
@@ -61,7 +64,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       {/* collapsible details section */}
       <div className="mt-4">
         <button
-          type="button"
+          type="button" id="toggleEventDescription"
           aria-expanded={detailsOpen}
           aria-controls={`activity-details-${activity.id}`}
           onClick={(e) => { e.stopPropagation(); setDetailsOpen(open => !open); }}
@@ -89,7 +92,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
        
         
       <div className="flex gap-2 flex-shrink-0">
-        <button
+        <button id="toggleOptIn"
           onClick={(e) => { e.stopPropagation(); onToggleOptIn(activity.id, !isOptedIn); }}
           className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
             isOptedIn ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-purple-500 text-white hover:bg-purple-600'
@@ -108,7 +111,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           )}
         </button>
 
-        {isOptedIn && canExport && (<button
+        {isOptedIn && canExport && (<button id="exportToCalendar"
           onClick={(e) => { e.stopPropagation(); 
             exportEventToICS({
               id: activity.id,
@@ -124,7 +127,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           </button>
         )}
         {canEdit && (
-          <button
+          <button id="editActivity"
             onClick={(e) => { e.stopPropagation(); onEditActivity?.(activity.id); }}
             className="p-2 text-emerald-600 hover:bg-blue-50 rounded-lg transition"
             title="Edit activity"
@@ -132,8 +135,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             <FilePen size={18} />
           </button>
         )}
-
-        {canDelete && (<button
+         <button id="rescheduleActivity"
+            onClick={(e) => { e.stopPropagation(); onRescheduleActivity(activity.id); }}
+            className="p-2 text-emerald-600 hover:bg-blue-50 rounded-lg transition"
+            title="Reschedule activity"
+          >
+            <CalendarSync size={18} />
+          </button>
+        {canDelete && (<button id="deleteActivity"
             onClick={(e) => { e.stopPropagation(); if (confirm('Are you sure you want to delete this activity?')) { onDeleteActivity(activity.id); } }}
             className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
             title="Delete activity"

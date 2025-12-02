@@ -1,11 +1,7 @@
 import React from 'react';
 import type { Activity, Trip, User } from '../../types';
 import ActivityCard from '../activities/ActivityCard';
-import EventsContainer from '@/components/activities/EventsContainer';
-import type {ScrollableProps} from '@/components/activities/EventsContainer';
 import { DaysList } from '@/components/layout/DaysList';
-import { CalendarPlus, Divide } from 'lucide-react';
-import { exportUserItineraryToICS } from '@/utils/helpers';
 
 //this state should be a part of eventsContainer
 
@@ -17,19 +13,13 @@ interface ActivitiesBrowserProps {
     isOwner: boolean;
     onToggleOptIn: (activityId: string, optIn: boolean) => void;
     onEditActivity: (activityId: string) => void;
+    onRescheduleActivity: (activityId: string) => void;
     onDeleteActivity: (activityId: string) => void;
     isCurrentUserOnly: boolean;    
     dateFilter: string,
     tagsFilter: string[],
     optInFilter: string[],
     creatorFilter: string,
-    /*
-    const [filterDate, setFilterDate] = useState('');
-      const [filterTags, setFilterTags] = useState<string[]>([]);
-      const [filterMember, setFilterMember] = useState('');
-      const [filterCreatorMember, setFilterCreatorMember] = useState('');
-      const [isCurrentUserOnly, setIsCurrentUserOnly] = useState(false);
-    */
 };
 
 
@@ -41,6 +31,7 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
     isCurrentUserOnly,
     onToggleOptIn,
     onEditActivity,
+    onRescheduleActivity,
     onDeleteActivity,
     dateFilter,
     tagsFilter,
@@ -147,6 +138,7 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
                             currentUser={currentUser}
                             onToggleOptIn={onToggleOptIn}
                             onEditActivity={onEditActivity}
+                            onRescheduleActivity={onRescheduleActivity}
                             onDeleteActivity={onDeleteActivity}
                             canEdit={true}
                             canDelete={activityItem.creatorId === currentUser.id || isOwner}

@@ -132,7 +132,7 @@ export const CreateActivity: React.FC<CreateActivityProps> = ({
   const tripCaption = activeTrip.name.charAt(0).toUpperCase() + activeTrip.name.slice(1)
   + ' (' + new Date(activeTrip.startDate).toDateString() + ' - ' + new Date(activeTrip.endDate).toDateString() + ')';
   return (
-    <div className="relative max-w-4xl mx-auto px-10 pb-8 ">
+    <div className="relative max-w-4xl mx-auto px-4 pb-8">
       <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl">
