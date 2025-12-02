@@ -10,7 +10,7 @@ const AVAILABLE_TAGS = [
   'concert',
   'hike',
   'park',
-  'theater',
+  'Theater',
   'festival',
   'shopping',
   'food',

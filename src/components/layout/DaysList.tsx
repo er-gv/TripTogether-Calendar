@@ -7,6 +7,10 @@ interface DaysListProps {
   trip?: Trip | null;
   currentUser?: User|null;
   activities: Activity[];
+  dateFilter: string;
+  tagsFilter: string[];
+  optInFilter: string[];
+  creatorFilter: string;
   onDayClicked: (iso: string) => void;
 }
 
@@ -43,12 +47,44 @@ export const buildDayObjects = (start?: string, end?: string) => {
 };
 
 
-export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], currentUser, onDayClicked }) => {
+export const DaysList: React.FC<DaysListProps> = ({ 
+  trip, 
+  activities = [], 
+  currentUser, onDayClicked,
+  dateFilter,
+  tagsFilter,
+  optInFilter,
+  creatorFilter
+}) => {
   const days = buildDayObjects(trip?.startDate, trip?.endDate);
-
+  const filteredActivities = activities.filter(act => {
+    if (!act.dateTime || !currentUser || !act.optedInUsers.find(id => id === currentUser.id)) return false;
+    if (dateFilter) {
+      const filterDate = new Date(dateFilter);
+      const actDate = new Date(act.dateTime);
+      if (filterDate.toDateString() !== actDate.toDateString()) return false;
+    } 
+    if (tagsFilter.length > 0) {
+      const hasTag = tagsFilter.some(tag => act.tags.includes(tag));
+      if (!hasTag) return false;
+    }
+    if (optInFilter.length > 0) {
+      const hasOptIn = optInFilter.some(userId => act.optedInUsers.includes(userId));
+      if (!hasOptIn) return false;
+    }
+    if (creatorFilter) {
+      if (act.creatorId !== creatorFilter) return false;
+    }
+    return true;
+  }
+);
   const activeDayKeys = new Set<string>();
-  activities.forEach((act) => {
+  filteredActivities.forEach((act) => {
     if (!act.dateTime || !currentUser || !act.optedInUsers.find(id => id === currentUser.id)) return;
+    if (dateFilter) {
+      const filterDate = new Date(dateFilter);
+      const actDate = new Date(act.dateTime);
+    }
     const key = new Date(act.dateTime).toISOString().slice(0, 10);
     activeDayKeys.add(key);
   });

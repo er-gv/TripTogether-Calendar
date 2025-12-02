@@ -43,6 +43,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
 
   const hasActiveFilters = filterDate || filterCreator || filterOptInMembers.length > 0 || filterTags.length > 0;
   
+  
   return (
     <div className="border-2 border-gray-200 rounded-xl p-4 bg-gray-50">
       <div className="flex items-center justify-between mb-4">
@@ -76,8 +77,8 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
         </div>
 
         
-          {/* Creator Filter */}
-          <div className="flex items-center gap-2">
+        {/* Creator Filter */}
+        <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
               Filter by Creator
             </label>
@@ -93,15 +94,17 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
                 </option>
               ))}
             </select>
-          </div>
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        {/* Joiners and tags */}
+        <div className="grid md:grid-cols-2 gap-2">
+          
           {/* Joiner Filter */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
+          <div className=''>
+            <label className="text-md font-medium text-left text-gray-700 mb-2 block">
               Filter by Joiners
             </label>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2  overflow-y-auto h-[260px] border-2 border-purple-500 rounded-xl p-2">
               {members.map(member => (
                 <label key={member.id} className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -121,60 +124,35 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
               ))}
             </div>
           </div>
-        
 
-          {/* Active Filters Display */}
+          {/* Tags Filter */}
           <div>
-            <label className="flex text-sm font-medium text-gray-700 mb-2">
-              Active Filters:
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {!hasActiveFilters && (
-                <span className="text-sm text-gray-500 italic">No filters applied</span>
-              )}
-              {filterDate && (
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
-                  Date: {new Date(filterDate).toLocaleDateString()}
-                </span>
-              )}
-              {filterCreator && (
-                <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-                  {members.find(m => m.id === filterCreator)?. displayName}
-                </span>
-              )}
-              {filterOptInMembers.length > 0 && (
-                <div className='overflow-y h-[200px]'>
-                <ul className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-                  {filterOptInMembers.map(id => members.find(m => m.id === id)?<li>{members.find(m => m.id === id)?.displayName}</li>:null)}
-                </ul>
-                </div>
-              )}
-            </div>
+          <label className="flex items-start text-md font-medium text-gray-700 mb-2">
+            Filter by Tags
+          </label>
+          <div className="overflow-y-auto h-[260px] border-2 border-purple-500 rounded-xl p-2">
+            <ul className="flex flex-col gap-2 items-start">
+            {AVAILABLE_TAGS.map(tag => (
+              <li className="text-left w-full"><button 
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className={`px-4 py-2 rounded-lg text-sm  font-medium transition 
+                ${
+                  filterTags.includes(tag)
+                    ? 'bg-purple-500 text-white'
+                    : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-purple-300'
+                }`}
+              >
+                {tag}
+              </button></li>
+            ))}
+            </ul>
           </div>
+      </div>
         </div>
       </div>
 
-      {/* Tags Filter */}
-      <div className="mt-10">
-        <label className="flex items-start text-sm font-medium text-gray-700 mb-2">
-          Filter by Tags
-        </label>
-        <div className="flex flex-wrap gap-2 overflow-y-auto h-[300px]">
-          {AVAILABLE_TAGS.map(tag => (
-            <button
-              key={tag}
-              onClick={() => toggleTag(tag)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                filterTags.includes(tag)
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-purple-300'
-              }`}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-      </div>
+      
     </div>
   );
 };

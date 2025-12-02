@@ -95,23 +95,18 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
     };
 
     const filteredActivities = activities.filter(activity => {
-        // Filter by current user opt-in status
-        if (isCurrentUserOnly && !activity.optedInUsers.includes(currentUser.id)) {
-            return false;
-        }
-        if (dateFilter && !activity.dateTime.startsWith(dateFilter)) {
-            return false;
-        }
-        if (tagsFilter.length > 0 && !tagsFilter.some(tag => activity.tags.includes(tag))) {
-            return false;
-        }
-        if (optInFilter.length > 0 && !optInFilter.some(userId => activity.optedInUsers.includes(userId))) {
-            return false;
-        }
-        if (creatorFilter && activity.creatorName !== creatorFilter) {
-            return false;
-        }
-        return true;
+        return (
+            // Filter by current user opt-in status
+            (!isCurrentUserOnly || activity.optedInUsers.includes(currentUser.id)) &&
+            // Filter by date
+            (!dateFilter || activity.dateTime.startsWith(dateFilter)) &&
+            // Filter by tags (if tags specified, activity must have at least one matching tag)
+            (tagsFilter.length === 0 || tagsFilter.some(tag => activity.tags.includes(tag))) &&
+            // Filter by opt-in members (if members specified, activity must have at least one matching opt-in user)
+            (optInFilter.length === 0 || optInFilter.some(userId => activity.optedInUsers.includes(userId))) &&
+            // Filter by creator
+            (!creatorFilter || activity.creatorName === creatorFilter)
+        );
     });
 
     //const scrollablePane = EventsContainer as React.FC<ScrollableProps<typeof ActivityCard>>;
@@ -123,6 +118,10 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
             trip={trip}
             onDayClicked={scrollToDay}
             currentUser={currentUser}
+            dateFilter={dateFilter}
+            tagsFilter={tagsFilter}
+            optInFilter={optInFilter}
+            creatorFilter={creatorFilter}
         />
         </section>
         
