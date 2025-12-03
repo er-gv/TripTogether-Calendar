@@ -1,4 +1,8 @@
 import { useState } from "react";
+export interface Tag {
+  id: string;
+  name: string;
+}
 
 export interface User {
   id: string;
@@ -37,10 +41,7 @@ export interface Activity {
   updatedAt: string;
 }
 
-export interface Tag {
-  id: string;
-  name: string;
-}
+
 export interface AuthContextType {
   user: User | null;
   loading: boolean;

@@ -1,7 +1,11 @@
 import React from 'react';
 import { Filter, X } from 'lucide-react';
-import type { User } from '../../types';
+import type { User, Tag } from '../../types';
 import {AVAILABLE_TAGS } from '../../types';
+import {readTagsFromFirestore} from '@/hooks/useTags';
+
+// Module-level cache - shared across all component instances
+//let tagsCache: Tag[] = [];
 
 interface ActivityFiltersProps {
   filterDate: string;
@@ -26,6 +30,22 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
   onFilterCreatorChange,
   onFilterTagsChange,
 }) => {
+  
+
+  // Fetch tags from Firestore only if not cached
+  /*React.useEffect(() => {
+    console.log("@FiltersPanel::effect - tagsCache:", tagsCache);
+    if (tagsCache === null || tagsCache.length === 0) {
+      const fetchTags = async () => {
+        console.log("Fetching tags from Firestore...");
+        const tags = (await readTagsFromFirestore());
+        tagsCache = tags.sort((a, b) => a.name.localeCompare(b.name)); // Store in module-level cache
+        console.log("Fetched tags from Firestore:", tagsCache);
+      };
+      fetchTags();
+    }
+  }, []);
+*/
   const toggleTag = (tag: string) => {
     if (filterTags.includes(tag)) {
       onFilterTagsChange(filterTags.filter(t => t !== tag));
@@ -104,7 +124,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
             <label className="text-md font-medium text-left text-gray-700 mb-2 block">
               Filter by Joiners
             </label>
-            <div className="flex flex-col gap-2  overflow-y-auto h-[260px] border-2 border-purple-500 rounded-xl p-2">
+            <div className="flex flex-col gap-2  overflow-y-auto h-[300px] border-2 border-purple-500 rounded-xl p-2">
               {members.map(member => (
                 <label key={member.id} className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -148,6 +168,23 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
             ))}
             </ul>
           </div>
+          {/*<div className="overflow-y-auto h-[300px] border-2 border-purple-500 rounded-xl p-2">
+            <ul className="flex flex-col gap-2 items-start">
+            {tagsCache.map(tag => (
+              <li key={tag.id} className="text-left w-full"><button 
+                onClick={() => toggleTag(tag)}
+                className={`px-4 py-2 rounded-lg text-sm  font-medium transition 
+                ${
+                  filterTags.includes(tag)
+                    ? 'bg-purple-500 text-white'
+                    : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-purple-300'
+                }`}
+              >
+                {tag.name}
+              </button></li>
+            ))}
+            </ul>
+          </div>*/}
       </div>
         </div>
       </div>

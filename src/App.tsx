@@ -16,6 +16,7 @@ import { auth } from './services/firebase';
 import { Loader, Navigation as NavIcon } from 'lucide-react';
 import type { ViewMode, AuthMode } from './types';
 import { ActivityFilters } from './components/activities/ActivityFilters';
+import type { Tag } from './types';
 
 
 
@@ -25,12 +26,24 @@ function App() {
   const [prevView, setPrevView] = useState<ViewMode>('activitiesView');
   const [authView, setAuthView] = useState<AuthMode>('splash');
   const [editingActivityId, setEditingActivityId] = useState<string | null>(null);
-  const [currentTripId, setCurrentTripId] = useState<string | null>(null);
+  const [currentTripId, setCurrentTripId] = useState<string | null>(() => {
+    // Initialize from localStorage on first render
+    return localStorage.getItem('currentTripId');
+  });
   const [filterDate, setFilterDate] = useState('');
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [filterCreator, setFilterCreator] = useState('');
   const [filterOptInMembers, setFilterOptInMembers] = useState<string[]>([]);
   const [isCurrentUserOnly, setIsCurrentUserOnly] = useState(false);
+  
+  // Persist currentTripId to localStorage whenever it changes
+  React.useEffect(() => {
+    if (currentTripId) {
+      localStorage.setItem('currentTripId', currentTripId);
+    } else {
+      localStorage.removeItem('currentTripId');
+    }
+  }, [currentTripId]);
   
   
   

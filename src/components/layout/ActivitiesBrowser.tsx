@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Activity, Trip, User } from '../../types';
+import type { Activity, Trip, User, Tag } from '../../types';
 import ActivityCard from '../activities/ActivityCard';
 import { DaysList } from '@/components/layout/DaysList';
 
@@ -16,7 +16,7 @@ interface ActivitiesBrowserProps {
     onDeleteActivity: (activityId: string) => void;
     isCurrentUserOnly: boolean;    
     dateFilter: string,
-    tagsFilter: string[],
+    tagsFilter: string[], //Tag[],
     optInFilter: string[],
     creatorFilter: string,
 };
@@ -94,10 +94,8 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
     
     };
 
-    const filteredActivities = activities.filter(activity => {
-        return (
-            // Filter by current user opt-in status
-            (!isCurrentUserOnly || activity.optedInUsers.includes(currentUser.id)) &&
+    const generalFilters = activities.filter(activity => {
+            return (
             // Filter by date
             (!dateFilter || activity.dateTime.startsWith(dateFilter)) &&
             // Filter by tags (if tags specified, activity must have at least one matching tag)
@@ -107,7 +105,13 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
             // Filter by creator
             (!creatorFilter || activity.creatorName === creatorFilter)
         );
+       
     });
+    
+     const filteredActivities = (
+        isCurrentUserOnly? generalFilters.filter(activity => activity.optedInUsers.includes(currentUser.id))
+        : generalFilters    
+    );
 
     //const scrollablePane = EventsContainer as React.FC<ScrollableProps<typeof ActivityCard>>;
     
@@ -116,6 +120,7 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
         <DaysList
             activities={activities}
             trip={trip}
+            isCurrentUserOnly={isCurrentUserOnly}
             onDayClicked={scrollToDay}
             currentUser={currentUser}
             dateFilter={dateFilter}
@@ -125,7 +130,7 @@ export const ActivitiesBrowser: React.FC<ActivitiesBrowserProps> = ({
         />
         </section>
         
-        <section className="flex-1 overflow-y-auto h-[600px] bg-white/40" id="my-activities-section">
+        <section className="flex-1 overflow-y-auto h-[1000px] bg-white/40" id="my-activities-section">
             <ul className='pt-4 pb-10'>
                 {filteredActivities.map((activityItem, idx) => {
                     

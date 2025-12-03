@@ -1,14 +1,15 @@
 import React from 'react';
-import type { Trip, Activity, User } from '@/types';
+import type { Trip, Activity, User, Tag } from '@/types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 //import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll'
 
 interface DaysListProps {
   trip?: Trip | null;
   currentUser?: User|null;
+  isCurrentUserOnly: boolean,
   activities: Activity[];
   dateFilter: string;
-  tagsFilter: string[];
+  tagsFilter: string[], //Tag[];
   optInFilter: string[];
   creatorFilter: string;
   onDayClicked: (iso: string) => void;
@@ -51,6 +52,7 @@ export const DaysList: React.FC<DaysListProps> = ({
   trip, 
   activities = [], 
   currentUser, onDayClicked,
+  isCurrentUserOnly,
   dateFilter,
   tagsFilter,
   optInFilter,
@@ -58,7 +60,8 @@ export const DaysList: React.FC<DaysListProps> = ({
 }) => {
   const days = buildDayObjects(trip?.startDate, trip?.endDate);
   const filteredActivities = activities.filter(act => {
-    if (!act.dateTime || !currentUser || !act.optedInUsers.find(id => id === currentUser.id)) return false;
+    
+    //if (currentUser && isCurrentUserOnly && !act.optedInUsers.find(id => id === currentUser.id)) return false;
     if (dateFilter) {
       const filterDate = new Date(dateFilter);
       const actDate = new Date(act.dateTime);
@@ -75,16 +78,14 @@ export const DaysList: React.FC<DaysListProps> = ({
     if (creatorFilter) {
       if (act.creatorId !== creatorFilter) return false;
     }
+    if(isCurrentUserOnly) {
+      if (!currentUser || !act.optedInUsers.find(id => id === currentUser.id)) return false;
+    }
     return true;
-  }
-);
+  });
+  
   const activeDayKeys = new Set<string>();
   filteredActivities.forEach((act) => {
-    if (!act.dateTime || !currentUser || !act.optedInUsers.find(id => id === currentUser.id)) return;
-    if (dateFilter) {
-      const filterDate = new Date(dateFilter);
-      const actDate = new Date(act.dateTime);
-    }
     const key = new Date(act.dateTime).toISOString().slice(0, 10);
     activeDayKeys.add(key);
   });
