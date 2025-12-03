@@ -1,12 +1,15 @@
 import React from 'react';
-import type { User } from '../../types';
+import type { User, Trip } from '../../types';
 import { Users, Crown, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '../common/Button';
+import { sendTripInvitationHTTP } from '@/services/invitation';
 
 interface MembersListProps {
   members: User[];
   ownerId: string;
   currentUserId: string;
+  currentTrip: Trip;
+  currentUser: User;
   onSetFilterCreator: (creatorName: string) => void;
   onSetFilterOptInMembers: (optInMembers: string[]) => void;
 };
@@ -14,11 +17,50 @@ interface MembersListProps {
 export const MembersList: React.FC<MembersListProps> = ({ 
   members,
   ownerId, 
-  currentUserId, 
+  currentUserId,
+  currentTrip,
+  currentUser,
   onSetFilterCreator, 
   onSetFilterOptInMembers 
 }) => {
   const [showInvite, setShowInvite] = React.useState(false);
+  const [inviteeEmail, setInviteeEmail] = React.useState('');
+  const [inviteeName, setInviteeName] = React.useState('');
+  const [sending, setSending] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState(false);
+
+  const handleSendInvitation = async () => {
+    if (!inviteeEmail) {
+      setError('Please enter an email address');
+      return;
+    }
+
+    setSending(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      await sendTripInvitationHTTP({
+        inviteeEmail,
+        inviteeName: inviteeName || undefined,
+        tripId: currentTrip.id,
+        inviterName: currentUser.displayName,
+        inviterEmail: currentUser.email,
+      });
+
+      setSuccess(true);
+      setInviteeEmail('');
+      setInviteeName('');
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send invitation');
+    } finally {
+      setSending(false);
+    }
+  };
 
   // Place the current user at the top of the list if present
   const meIndex = members.findIndex(m => m.id === currentUserId);
@@ -114,32 +156,50 @@ export const MembersList: React.FC<MembersListProps> = ({
             <Plus size={20} className="text-purple-600"  />
             <span className="text-left">Invite new member: </span>
           </div>
+          
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+              Invitation sent successfully!
+            </div>
+          )}
+          
           <div className="grid grid-cols-2 items-center">
           
             <label className='pr-5 text-left' htmlFor="invite-email" >Email address:</label>
             <input
-            type="text"
-            
+            type="email"
+            value={inviteeEmail}
+            onChange={(e) => setInviteeEmail(e.target.value)}
             id="invite-email"
             name="invite-email"
-            className="border border-gray-300 rounded-l-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
             placeholder="Enter email address" 
-            >
-            </input>
+            />
           </div>
           <div className="grid grid-cols-2 items-center">
-          <label className='pr-5 text-left' htmlFor="invite-message" >Invite message:</label>
-          <textarea
-            id="invite-message"
-            name="invite-message"
-            className="border border-gray-300 rounded-r-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            placeholder="Enter invite message"
+          <label className='pr-5 text-left' htmlFor="invite-name" >Name (optional):</label>
+          <input
+            type="text"
+            value={inviteeName}
+            onChange={(e) => setInviteeName(e.target.value)}
+            id="invite-name"
+            name="invite-name"
+            className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            placeholder="Enter name"
           />
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={() => alert(`Invitation sent!`)} className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2">
-              
-              Send invitation!
+            <Button 
+              onClick={handleSendInvitation} 
+              disabled={sending || !inviteeEmail}
+              className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              {sending ? 'Sending...' : 'Send invitation!'}
             </Button>
           </div>
         </div>

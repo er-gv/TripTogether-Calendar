@@ -46,14 +46,6 @@ function App() {
   }, [currentTripId]);
   
   
-  
-  //state filters that govern whitch activities are shown in the ActivitiesBrowser
-  //const [filterDate, setFilterDate] = useState('');
-  //const [filterMember, setFilterMember] = useState('');
-  //const [filterTags, setFilterTags] = useState<string[]>([]);
-  //const [selectedActivityId, setSelectedActivityId] = React.useState<string | null>(null);
-  
-
   const { user, loading: authLoading, signInWithGoogle } = useAuth();
   const { currentTrip, members, loading: tripLoading } = useTrip(currentTripId, user?.id || null);
   const { activities, loading: activitiesLoading, createActivity, deleteActivity, toggleOptIn, editActivity } = useActivities(currentTripId);
@@ -202,11 +194,6 @@ function App() {
     setView('membersView');
   };
 
-  /**
- * style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    }}
- */
   return (
 
     <article>
@@ -258,6 +245,8 @@ function App() {
                   members={members}
                   ownerId={currentTrip.ownerId}
                   currentUserId={user.id}
+                  currentTrip={currentTrip}
+                  currentUser={user}
                   onSetFilterCreator={setFilterCreator}
                   onSetFilterOptInMembers={setFilterOptInMembers}
                 />

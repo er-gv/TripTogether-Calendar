@@ -150,7 +150,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
           <label className="flex items-start text-md font-medium text-gray-700 mb-2">
             Filter by Tags
           </label>
-          <div className="overflow-y-auto h-[260px] border-2 border-purple-500 rounded-xl p-2">
+          <div className="overflow-y-auto h-[300px] border-2 border-purple-500 rounded-xl p-2">
             <ul className="flex flex-col gap-2 items-start">
             {AVAILABLE_TAGS.map(tag => (
               <li className="text-left w-full"><button 
