@@ -34,12 +34,12 @@ const ActivityHeader: React.FC<ActivityHeaderProps> = ({ name, location, mapsLin
       {/* Right: content pane matching thumbnail height (170px) */}
       <div className="flex-1 min-w-0 h-[170px] flex items-top">
         <div className="min-w-0 overflow-hidden flex-1 flex flex-col justify-between">
-          <div className="flex flex-col h-full justify-between">
-            <div>
-              <h1 className="mb-2 font-bold text-xl text-gray-800 truncate">{name}</h1>
-              <h2 className="mb-2 font-bold text-md text-gray-600 truncate">{formatDateTime(dateTime)}</h2>
+          <div className="flex flex-col h-full justify-between items-start">
+            <div className="items-start w-full">
+              <h1 className="mb-2 font-bold text-xl text-gray-800 text-left truncate">{name}</h1>
+              <h2 className="mb-2 font-bold text-md text-gray-600 text-left truncate">{formatDateTime(dateTime)}</h2>
 
-              <div className="flex items-center text-sm text-gray-700 truncate">
+              <div className="flex items-start justify-start text-sm text-gray-700 truncate">
                 {mapsLink ? (
                   <>
                     <MapPin className="inline-block w-3 h-3 text-blue-600 font-bold mr-1 flex-shrink-0" />

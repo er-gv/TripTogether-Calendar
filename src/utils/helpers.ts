@@ -1,3 +1,4 @@
+import {getActivitiesByUser} from '@/services/firestore';
 
 export const isValidUrl = (url: string): boolean => {
   try {
@@ -173,3 +174,159 @@ export const getDatesBetween = (start?: string, end?: string): string[] => {
 
   return out;
 };
+
+// Helper function to format date for ICS with timezone (YYYYMMDDTHHMMSS)
+const formatDateForICS = (date: Date, useUTC: boolean = false): string => {
+  if (useUTC) {
+    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  }
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}${month}${day}T${hours}${minutes}${seconds}`;
+};
+
+// Helper function to generate VTIMEZONE component for ICS
+const buildVTimezoneBlock = (timezone: string): string => {
+  // For simplicity, we'll use a basic VTIMEZONE structure
+  // In production, you might want to use a library like timezone-support or luxon
+  return [
+    'BEGIN:VTIMEZONE',
+    `TZID:${timezone}`,
+    'END:VTIMEZONE'
+  ].join('\r\n');
+};
+
+// Helper function to build ICS VEVENT block for an activity
+const buildVEventBlock = (activity: { id: string; name: string; description?: string; dateTime: string; location?: string }, timezone?: string): string | null => {
+  
+  const startDate = new Date(activity.dateTime);
+  console.log("@buildVEventBlock: startDate is", startDate);
+  if (isNaN(startDate.getTime())) {
+    return null; // Skip invalid dates
+  }
+
+  // Default end time to 1 hour after start
+  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+
+  const uid = `${activity.id}@triptogether.app`;
+
+  // Format dates based on whether timezone is provided
+  const useTimezone = timezone? (timezone !== 'UTC') : false;
+  console.log("@buildVEventBlock: useTimezone is", useTimezone);
+  const startFormatted = formatDateForICS(startDate, useTimezone);
+  const endFormatted = formatDateForICS(endDate, useTimezone);
+  const dtstamp = formatDateForICS(new Date(), true); // DTSTAMP always in UTC
+  
+  console.log("@buildVEventBlock: startFormatted is", startFormatted, " endFormatted is", endFormatted, " dtstamp is", dtstamp);
+  const lines = [
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${dtstamp}`,
+    useTimezone ? `DTSTART;TZID=${timezone}:${startFormatted}` : `DTSTART:${startFormatted}`,
+    useTimezone ? `DTEND;TZID=${timezone}:${endFormatted}` : `DTEND:${endFormatted}`,
+    `SUMMARY:${activity.name}`,
+    activity.description ? `DESCRIPTION:${activity.description.replace(/\n/g, '\\n')}` : '',
+    activity.location ? `LOCATION:${activity.location}` : '',
+    'STATUS:CONFIRMED',
+    'END:VEVENT'
+  ];
+
+  return lines.filter(line => line !== '').join('\r\n');
+};
+
+// Helper function to create ICS file content from VEVENT blocks
+const createICSContent = (vevents: string[], timezone?: string): string => {
+  const components = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//TripTogether//Calendar//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH'
+  ];
+
+  // Add VTIMEZONE if timezone is specified
+  if (timezone && timezone !== 'UTC') {
+    components.push(buildVTimezoneBlock(timezone));
+  }
+
+  components.push(...vevents);
+  components.push('END:VCALENDAR');
+
+  return components.join('\r\n');
+};
+
+// Helper function to download ICS file
+const downloadICSFile = (icsContent: string, filename: string): void => {
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
+
+export const exportEventToICS = (activity: { id: string; name: string; description?: string; dateTime: string; location?: string }, timezone?: string): void => {
+  try {
+    // Build VEVENT block
+    const veventBlock = buildVEventBlock(activity, timezone);
+    console.log("veventBlock:", veventBlock);
+    if (!veventBlock) {
+      alert('Invalid activity date/time');
+      return;
+    }
+
+    // Create ICS file content and download
+    const icsContent = createICSContent([veventBlock]);
+    const filename = `${activity.name.replace(/[^a-z0-9]/gi, '_')}.ics`;
+    downloadICSFile(icsContent, filename);
+  } catch (error) {
+    console.error('Error exporting to ICS:', error);
+    alert('Failed to export calendar event');
+  }
+}
+
+export const exportUserItineraryToICS = async (userId: string, userName?: string, timezone?: string): Promise<void> => {
+  // Show loading feedback immediately
+  const originalAlert = window.alert;
+  let alertShown = false;
+  console.log("@exportUserItineraryToICS: starting export for userId", userId, " userName:", userName);
+  window.alert = (msg: string) => {
+    alertShown = true;
+    originalAlert(msg);
+  };
+  try {
+    // Fetch activities where user has opted in
+    const userActivities = await getActivitiesByUser(userId);
+
+    if (userActivities.length === 0) {
+      alert('No activities found for this user');
+      return;
+    }
+
+    // Build VEVENT blocks for each activity
+    const vevents = userActivities
+      .map(activity => buildVEventBlock(activity))
+      .filter(event => event !== null);
+
+    if (vevents.length === 0) {
+      alert('No valid activities to export');
+      return;
+    }
+
+    // Create ICS file content and download
+    const icsContent = createICSContent(vevents);
+    const filename = userName ? `${userName.replace(/[^a-z0-9]/gi, '_')}_activities.ics` : `my_activities.ics`;
+    downloadICSFile(icsContent, filename);
+  } catch (error) {
+    console.error('Error exporting activities:', error);
+    alert('Failed to export activities');
+  }
+}

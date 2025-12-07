@@ -1,17 +1,18 @@
 import React from 'react';
-import type { Trip, Activity } from '@/types';
-
-
-const scrollContainerClassName = "p-2 pl-20 mr-20 w-[80%] overflow-x-auto  whitespace-nowrap box-border";
-const scrollContentClassName = "inline-flex w-[calc(100%/5)]";
-// use inline-flex + flex-col + gap-0 + leading-tight so the three text rows sit closer
-const enabledItemStyleClassName = "inline-flex flex-col items-center gap-0 mr-6 px-2 md:px-3 py-1 font-bold text-[16px] md:text-[16px] rounded-md transform transition-transform duration-200 hover:scale-105 hover:-translate-y-1 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:text-yellow-300 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white leading-tight";
-const disabledButtonStyleClassName = "inline-flex flex-col items-center gap-0 mr-6 px-2 md:px-3 py-1 font-bold text-[16px] md:text-[16px] rounded-md bg-gray-200 text-gray-500 cursor-not-allowed opacity-70 leading-tight";
+import type { Trip, Activity, User, Tag } from '@/types';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+//import { Link, DirectLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll'
 
 interface DaysListProps {
   trip?: Trip | null;
-  activities?: Activity[];
-  onDayClick?: (iso: string) => void;
+  currentUser?: User|null;
+  isCurrentUserOnly: boolean,
+  activities: Activity[];
+  dateFilter: string;
+  tagsFilter: string[], //Tag[];
+  optInFilter: string[];
+  creatorFilter: string;
+  onDayClicked: (iso: string) => void;
 }
 
 export const buildDayObjects = (start?: string, end?: string) => {
@@ -47,69 +48,114 @@ export const buildDayObjects = (start?: string, end?: string) => {
 };
 
 
-
-export const DaysList: React.FC<DaysListProps> = ({ trip, activities = [], onDayClick }) => {
+export const DaysList: React.FC<DaysListProps> = ({ 
+  trip, 
+  activities = [], 
+  currentUser, onDayClicked,
+  isCurrentUserOnly,
+  dateFilter,
+  tagsFilter,
+  optInFilter,
+  creatorFilter
+}) => {
   const days = buildDayObjects(trip?.startDate, trip?.endDate);
-
+  const filteredActivities = activities.filter(act => {
+    
+    //if (currentUser && isCurrentUserOnly && !act.optedInUsers.find(id => id === currentUser.id)) return false;
+    if (dateFilter) {
+      const filterDate = new Date(dateFilter);
+      const actDate = new Date(act.dateTime);
+      if (filterDate.toDateString() !== actDate.toDateString()) return false;
+    } 
+    if (tagsFilter.length > 0) {
+      const hasTag = tagsFilter.some(tag => act.tags.includes(tag));
+      if (!hasTag) return false;
+    }
+    if (optInFilter.length > 0) {
+      const hasOptIn = optInFilter.some(userId => act.optedInUsers.includes(userId));
+      if (!hasOptIn) return false;
+    }
+    if (creatorFilter) {
+      if (act.creatorId !== creatorFilter) return false;
+    }
+    if(isCurrentUserOnly) {
+      if (!currentUser || !act.optedInUsers.find(id => id === currentUser.id)) return false;
+    }
+    return true;
+  });
+  
   const activeDayKeys = new Set<string>();
-  activities.forEach((act) => {
-    if (!act.dateTime) return;
+  filteredActivities.forEach((act) => {
     const key = new Date(act.dateTime).toISOString().slice(0, 10);
     activeDayKeys.add(key);
   });
 
   return (
-    
-  <div className="p-3  bg-white/50">
+  <div className='flex bg-blue-100 text-emerald-600 shadow-md rounded-lg'>
+    <button className="text-left font-bold p-3 border-b-2 border-emerald-600"
+    onClick={() => {
+      document.querySelector('#days-list-container')?.scrollBy({ left: -100, behavior: 'smooth'});
+    }}>
       
-      <div className={scrollContainerClassName}>
-        
-        
-          {days.length > 0 && (
-          <ul className={scrollContentClassName}>
+      <ChevronLeft size={40} color="#23b340" strokeWidth={3} />
+    </button>
+  <div className=" bg-white/50 overflow-auto whitespace-nowrap w-full p-3"
+  id ="days-list-container">
+      
+    {days.length > 0 && currentUser && (
+          
+          <ul className="inline-flex gap-3 w-200">
+          
             {days.map((dayObj, idx) => {
               const dayKey = new Date(dayObj.iso).toISOString().slice(0, 10);
-            const hasEvents = activeDayKeys.has(dayKey);
-            return (
-              <li key={dayObj.iso + idx}>
-                {hasEvents ? (
-                  <button
-                    type="button"
+              const hasEvents = activeDayKeys.has(dayKey);
+              return (
+                <li key={dayObj.iso + idx}>
+                  {hasEvents ? (
+                    <button type="button" className="bg-green-200 px-2 border-emerald-600 border-2 rounded-md"
+                      onClick={() => {
+                        if (onDayClicked) {
+                          console.log("clicking day:", dayObj.iso); 
+                          onDayClicked(dayObj.iso);
+                        }else {
+                          console.log("no onDayClicked handler");
+                        }
+                      }}
+                    >
+                      <div className='m-0 text-md font-extrabold'>{dayObj.weekday}</div>
+                      <div className='text-xl font-extrabold'>{dayObj.monthday}</div>
+                      <div className='text-md font-extrabold'>{dayObj.date}</div>
+                    </button>
+                  ) : (
                     
-                    onClick={() => {
-                      if (onDayClick) onDayClick(dayObj.iso);
-                    }}
-                    className={enabledItemStyleClassName} >
-                  
-                    <div className='m-0 text-md font-extrabold'>{dayObj.weekday}</div>
-                    <div className='text-3xl font-extrabold'>{dayObj.monthday}</div>
-                    <div className='text-md font-extrabold'>{dayObj.date}</div>
-
-                  </button>
-                ) : (
-                  
-                  <span className="inline-block" title="no events scheduled for this day">
-                    <button
-                      type="button"
-                      disabled
-                      aria-disabled
-                      className= {disabledButtonStyleClassName} 
+                    <button type="button" disabled aria-disabled
+                      className="bg-red-200 px-2 border-red-600 border-2 rounded-md"
+                      
                       /*"mr-6 px-2 md:px-3 py-1 font-bold text-[16px] md:text-[18px] rounded-md bg-gray-200 text-gray-500 cursor-not-allowed opacity-70"*/
                     >
                       <div className='text-md font-extrabold'>{dayObj.weekday}</div>
-                      <div className='text-3xl font-extrabold'>{dayObj.monthday}</div>
+                      <div className='text-xl font-extrabold'>{dayObj.monthday}</div>
                       <div className='text-md font-extrabold'>{dayObj.date}</div>
                     </button>
-                  </span>
+                  
                 )}
               </li>
             );
           })}
         </ul>
-        )}
         
-      </div>
+      
+      
+        
+    )}
     </div>
+    <button className="text-left font-bold p-3 border-b-2 border-emerald-600"
+    onClick={() => {
+      document.querySelector('#days-list-container')?.scrollBy({ left: +100, behavior: 'smooth'});
+    }}>
+      <ChevronRight size={40} color="#23b340" strokeWidth={3} />
+    </button>
+    </div>  
   );
 };
 

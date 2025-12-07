@@ -87,6 +87,20 @@ export const getActivitiesByTrip = async (tripId: string): Promise<Activity[]> =
   })) as Activity[];
 };
 
+export const getActivitiesByUser = async (userId: string): Promise<Activity[]> => {
+  const q = query(
+    collection(db, ACTIVITIES_COLLECTION),
+    where('optedInUsers', 'array-contains', userId),
+    orderBy('dateTime', 'asc')
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Activity[];
+};
+
 export const updateActivity = async (activityId: string, data: Partial<Activity>): Promise<void> => {
   await updateDoc(doc(db, ACTIVITIES_COLLECTION, activityId), {
     ...data,
